@@ -1,0 +1,183 @@
+
+<?php
+// Configurar clases dinámicas para que el layout ocupe toda la pantalla
+$bodyClasses = 'bg-gray-100 font-sans h-screen flex flex-col';
+$extraCss = '/Padrino\'s_Pizza/assets/css/Pos.css';
+require_once __DIR__ . '/../../includes/header.php';
+
+/**
+ * Variables inyectadas por el controlador:
+ * @var array $categorias
+ * @var array $productos
+ * @var array $extrasPorProducto
+ */
+?>
+    <!-- Contenido Principal POS -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- PANEL IZQUIERDO: Catálogo de Productos -->
+        <main class="flex-1 p-5 overflow-y-auto">
+            
+            <!-- Categorías Dinámicas -->
+            <div class="mb-6 flex space-x-3 overflow-x-auto pb-2" id="contenedor-categorias">
+                <button class="btn-categoria activo bg-[#1B4332] text-white px-5 py-2 rounded-xl font-bold text-xs shadow flex items-center space-x-2 shrink-0 cursor-pointer" data-id="0">
+                    <span>Todas</span>
+                </button>
+                
+                <?php if (isset($categorias) && is_array($categorias)): foreach ($categorias as $cat): ?>
+                <button class="btn-categoria bg-white text-gray-700 px-5 py-2 rounded-xl font-bold text-xs shadow hover:bg-gray-50 flex items-center space-x-2 border border-gray-200 shrink-0 cursor-pointer" data-id="<?= $cat['id_categoria'] ?>">
+                    <span><?= htmlspecialchars($cat['nombre']) ?></span>
+                </button>
+                <?php endforeach; endif; ?>
+            </div>
+
+            <!-- Rejilla de Tarjetas de Productos (4 Columnas Adaptables) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start">
+                
+                <?php if (isset($productos) && is_array($productos)): foreach ($productos as $prod): 
+                    $idCat = intval($prod['id_categoria']);
+                    $borderBgClass = match($idCat) {
+                        1 => 'border-t-4 border-t-red-600',          // Pizzas (Rojo)
+                        2 => 'border-t-4 border-t-blue-500',         // Bebidas (Azul)
+                        3 => 'border-t-4 border-t-amber-500',        // Entradas (Dorado)
+                        default => 'border-t-4 border-t-emerald-700' // General
+                    };
+                    $tieneExtras = isset($extrasPorProducto[$prod['id_producto']]) && !empty($extrasPorProducto[$prod['id_producto']]);
+                ?>
+                <div class="tarjeta-producto bg-white p-4 rounded-2xl shadow-sm border border-gray-200 <?= $borderBgClass ?> flex flex-col justify-between" data-categoria="<?= $prod['id_categoria'] ?>">
+                    <div>
+                        <!-- Titulo y Precio -->
+                        <div class="flex justify-between items-start mb-1 gap-2">
+                            <h3 class="font-bold text-sm text-gray-900 leading-tight flex-1"><?= htmlspecialchars($prod['nombre']) ?></h3>
+                            <span class="text-sm font-extrabold text-[#1B4332] shrink-0">$<?= number_format($prod['precio'], 2) ?></span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mb-3 line-clamp-2"><?= htmlspecialchars($prod['descripcion']) ?></p>
+                        
+                        <!-- Sección de Extras (Solo si aplica) -->
+                        <?php if ($tieneExtras): ?>
+                        <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-3">
+                            <span class="text-[9px] font-bold text-gray-600 block mb-1.5 uppercase tracking-wider">Ingredientes / Extras:</span>
+                            <div class="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+                                <?php foreach ($extrasPorProducto[$prod['id_producto']] as $extra): ?>
+                                <label class="flex items-center justify-between text-[11px] text-gray-700 cursor-pointer hover:bg-gray-100 p-1 rounded transition">
+                                    <div class="flex items-center space-x-1.5 truncate">
+                                        <input type="checkbox" class="extra-checkbox rounded text-[#1B4332] focus:ring-emerald-800 h-3.5 w-3.5 cursor-pointer"
+                                               data-id="<?= $extra['id_extra'] ?>"
+                                               data-nombre="<?= htmlspecialchars($extra['nombre']) ?>"
+                                               data-precio="<?= $extra['precio'] ?>">
+                                        <span class="truncate"><?= htmlspecialchars($extra['nombre']) ?></span>
+                                    </div>
+                                    <span class="font-semibold text-gray-500 text-[10px] shrink-0 ml-1">+$<?= number_format($extra['precio'], 2) ?></span>
+                                </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <button class="btn-agregar w-full bg-[#1B4332] hover:bg-emerald-950 text-white font-bold py-2 rounded-xl text-xs transition shadow cursor-pointer mt-2"
+                            data-id="<?= $prod['id_producto'] ?>"
+                            data-nombre="<?= htmlspecialchars($prod['nombre']) ?>"
+                            data-precio="<?= $prod['precio'] ?>">
+                        + Agregar a la Orden
+                    </button>
+                </div>
+                <?php endforeach; endif; ?>
+
+            </div>
+
+        </main>
+
+        <!-- PANEL DERECHO: Resumen de Orden Reestructurado en 2 Sub-Columnas -->
+        <aside class="w-[520px] bg-white border-l border-gray-200 p-4 flex flex-col justify-between shadow-2xl">
+            
+            <!-- Cabecera del Panel -->
+            <div class="flex justify-between items-center border-b pb-2.5 mb-3 shrink-0">
+                <h2 class="text-base font-extrabold text-gray-900" style="font-family: 'Cinzel', serif;">NUEVA ORDEN</h2>
+                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">Mostrador</span>
+            </div>
+
+            <!-- Contenido Dividido en 2 Columnas -->
+            <div class="flex-1 grid grid-cols-2 gap-4 overflow-hidden">
+                
+                <!-- SUB-COLUMNA IZQUIERDA: Items del Carrito -->
+                <div class="flex flex-col border-r border-gray-100 pr-3 overflow-hidden">
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Productos Añadidos</span>
+                    <div id="lista-ticket" class="space-y-2.5 flex-1 overflow-y-auto pr-1">
+                        <!-- Items del carrito -->
+                    </div>
+                </div>
+
+                <!-- SUB-COLUMNA DERECHA: Datos del Cliente, Totales y Cobro -->
+                <div class="flex flex-col justify-between space-y-3">
+                    
+                    <!-- Formulario Cliente y Notas -->
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2.5 text-xs">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">👤 Nombre Cliente *:</label>
+                            <input type="text" id="nombre_cliente" required placeholder="Ej. Juan Pérez" 
+                                   class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">⏰ Hora (07:00 - 20:30):</label>
+                            <input type="time" id="hora_entrega" min="07:00" max="20:30" 
+                                   class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">📝 Obs. Cocina:</label>
+                            <textarea id="observaciones_orden" rows="2" placeholder="Ej. Masa delgada..." 
+                                      class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Totales y Botones de Pago -->
+                    <div class="space-y-2 pt-2 border-t border-gray-100">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Subtotal:</span>
+                            <span id="ticket-subtotal" class="font-bold text-gray-800">$0.00</span>
+                        </div>
+                        
+                        <div class="flex justify-between text-base font-extrabold text-gray-900">
+                            <span>Total:</span>
+                            <span id="ticket-total" class="text-lg text-[#1B4332]">$0.00</span>
+                        </div>
+
+                        <!-- Estado de Pago -->
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button type="button" id="btn-pago-realizado" class="estado-pago activo bg-emerald-100 border border-emerald-600 py-1.5 rounded-lg text-[10px] font-bold text-emerald-900 text-center cursor-pointer" data-estado="pagado">
+                                Pagado
+                            </button>
+                            <button type="button" id="btn-pago-pendiente" class="estado-pago border border-gray-300 py-1.5 rounded-lg text-[10px] font-semibold text-gray-600 hover:bg-gray-50 text-center cursor-pointer" data-estado="pendiente">
+                                Pendiente
+                            </button>
+                            <input type="hidden" id="estado_pago_seleccionado" value="pagado">
+                        </div>
+
+                        <!-- Botón Procesar -->
+                        <button id="btn-procesar" disabled class="w-full bg-[#A61C1C] hover:bg-red-800 text-white font-bold py-2.5 rounded-xl shadow-md transition text-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-1">
+                            Procesar e Imprimir
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+<!-- Componentes Modales -->
+<?php require_once __DIR__ . '/../Components/Modal_Apertura.php'; ?>
+<?php require_once __DIR__ . '/../Components/Modal_Cierre.php'; ?>
+
+<!-- Scripts de JavaScript -->
+<script src="/Padrino's_Pizza/assets/js/ValidarPos.js"></script>
+<script src="/Padrino's_Pizza/assets/js/Cierre_Caja.js"></script>
+
+<?php
+$extraJs = '/Padrino\'s_Pizza/assets/js/Pos.js';
+require_once __DIR__ . '/../../includes/footer.php';
+?> 

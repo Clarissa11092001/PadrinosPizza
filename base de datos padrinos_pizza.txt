@@ -1,0 +1,783 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.3
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 28-10-2026 a las 17:26:13
+-- Versión del servidor: 8.4.7
+-- Versión de PHP: 8.3.28
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `padrinos_pizza`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categorias`
+--
+
+DROP TABLE IF EXISTS `categorias`;
+CREATE TABLE IF NOT EXISTS `categorias` (
+  `id_categoria` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_categoria`),
+  UNIQUE KEY `nombre` (`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `categorias`
+--
+
+INSERT INTO `categorias` (`id_categoria`, `nombre`, `activo`) VALUES
+(1, 'Pizzas', 1),
+(2, 'Bebidas', 1),
+(3, 'Postres', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cierres_caja`
+--
+
+DROP TABLE IF EXISTS `cierres_caja`;
+CREATE TABLE IF NOT EXISTS `cierres_caja` (
+  `id_cierre` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_usuario` int UNSIGNED NOT NULL,
+  `fecha_apertura` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_cierre` datetime DEFAULT NULL,
+  `monto_inicial` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `monto_esperado` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `monto_declarado` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `diferencia` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `observaciones` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` enum('abierta','cerrada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'abierta',
+  PRIMARY KEY (`id_cierre`),
+  KEY `fk_cierre_usuario` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `cierres_caja`
+--
+
+INSERT INTO `cierres_caja` (`id_cierre`, `id_usuario`, `fecha_apertura`, `fecha_cierre`, `monto_inicial`, `monto_esperado`, `monto_declarado`, `diferencia`, `observaciones`, `estado`) VALUES
+(1, 2, '2026-10-26 14:18:35', '2026-10-26 14:29:31', 50.00, 58.45, 58.45, 0.00, '', 'cerrada'),
+(2, 2, '2026-10-26 15:47:39', '2026-10-26 15:47:49', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
+(3, 2, '2026-10-26 15:48:07', '2026-10-26 15:48:39', 50.00, 55.00, 55.00, 0.00, '', 'cerrada'),
+(4, 2, '2026-10-26 15:50:27', '2026-10-26 15:50:36', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
+(5, 2, '2026-10-27 23:50:06', '2026-10-27 23:50:40', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
+(6, 2, '2026-10-28 01:42:55', NULL, 50.00, 0.00, 0.00, 0.00, NULL, 'abierta');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `clientes`
+--
+
+DROP TABLE IF EXISTS `clientes`;
+CREATE TABLE IF NOT EXISTS `clientes` (
+  `id_cliente` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `apellido` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telefono` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `creado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_cliente`),
+  KEY `idx_cliente_telefono` (`telefono`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `clientes`
+--
+
+INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, `creado_en`) VALUES
+(1, 'María', NULL, '7777-1234', NULL, '2026-10-21 17:47:26');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_orden`
+--
+
+DROP TABLE IF EXISTS `detalle_orden`;
+CREATE TABLE IF NOT EXISTS `detalle_orden` (
+  `id_detalle` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_orden` int UNSIGNED NOT NULL,
+  `id_producto` int UNSIGNED NOT NULL,
+  `cantidad` smallint UNSIGNED NOT NULL,
+  `precio_unitario` decimal(8,2) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  `notas` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id_detalle`),
+  KEY `fk_det_orden` (`id_orden`),
+  KEY `fk_det_producto` (`id_producto`)
+) ;
+
+--
+-- Volcado de datos para la tabla `detalle_orden`
+--
+
+INSERT INTO `detalle_orden` (`id_detalle`, `id_orden`, `id_producto`, `cantidad`, `precio_unitario`, `subtotal`, `notas`) VALUES
+(1, 1, 1, 1, 8.50, 8.50, NULL),
+(2, 2, 1, 1, 8.75, 8.75, NULL),
+(3, 2, 2, 1, 13.74, 13.74, NULL),
+(4, 2, 3, 1, 2.00, 2.00, NULL),
+(5, 3, 1, 1, 8.75, 8.75, NULL),
+(6, 3, 1, 1, 9.25, 9.25, NULL),
+(7, 3, 1, 1, 7.50, 7.50, NULL),
+(8, 3, 3, 1, 2.00, 2.00, NULL),
+(9, 4, 2, 1, 12.99, 12.99, NULL),
+(10, 4, 2, 1, 13.99, 13.99, NULL),
+(11, 4, 1, 1, 8.75, 8.75, NULL),
+(12, 4, 3, 1, 2.00, 2.00, NULL),
+(13, 5, 2, 1, 13.99, 13.99, NULL),
+(14, 5, 1, 1, 7.50, 7.50, NULL),
+(15, 6, 5, 1, 5.00, 5.00, NULL),
+(16, 6, 4, 1, 8.45, 8.45, NULL),
+(17, 6, 2, 1, 12.99, 12.99, NULL),
+(18, 6, 2, 1, 13.74, 13.74, NULL),
+(19, 7, 2, 1, 12.99, 12.99, NULL),
+(20, 8, 4, 1, 8.45, 8.45, NULL),
+(21, 9, 5, 1, 5.00, 5.00, NULL),
+(22, 9, 3, 1, 2.00, 2.00, NULL),
+(23, 9, 2, 1, 13.99, 13.99, NULL),
+(24, 10, 4, 1, 8.45, 8.45, NULL),
+(25, 10, 1, 1, 7.50, 7.50, NULL),
+(26, 10, 1, 1, 9.00, 9.00, NULL),
+(27, 11, 2, 1, 12.99, 12.99, NULL),
+(28, 11, 3, 1, 2.00, 2.00, NULL),
+(29, 11, 5, 1, 5.00, 5.00, NULL),
+(30, 11, 5, 1, 5.00, 5.00, NULL),
+(31, 12, 4, 1, 8.45, 8.45, NULL),
+(32, 12, 2, 1, 12.99, 12.99, NULL),
+(33, 12, 2, 1, 13.99, 13.99, NULL),
+(34, 13, 5, 1, 5.00, 5.00, NULL),
+(35, 13, 3, 1, 2.00, 2.00, NULL),
+(36, 13, 1, 1, 9.00, 9.00, NULL),
+(37, 14, 4, 1, 8.45, 8.45, NULL),
+(38, 15, 1, 1, 9.25, 9.25, NULL),
+(39, 16, 2, 1, 12.99, 12.99, NULL),
+(40, 16, 2, 1, 13.99, 13.99, NULL),
+(41, 17, 5, 1, 5.00, 5.00, NULL),
+(42, 18, 4, 1, 8.45, 8.45, NULL),
+(43, 18, 2, 1, 12.99, 12.99, NULL),
+(44, 18, 3, 1, 2.00, 2.00, NULL),
+(45, 18, 5, 1, 5.00, 5.00, NULL);
+
+--
+-- Disparadores `detalle_orden`
+--
+DROP TRIGGER IF EXISTS `trg_detalle_ad`;
+DELIMITER $$
+CREATE TRIGGER `trg_detalle_ad` AFTER DELETE ON `detalle_orden` FOR EACH ROW BEGIN
+    UPDATE ordenes
+    SET subtotal = (SELECT COALESCE(SUM(subtotal),0) FROM detalle_orden WHERE id_orden = OLD.id_orden)
+    WHERE id_orden = OLD.id_orden;
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_detalle_ai`;
+DELIMITER $$
+CREATE TRIGGER `trg_detalle_ai` AFTER INSERT ON `detalle_orden` FOR EACH ROW BEGIN
+    UPDATE ordenes
+    SET subtotal = (SELECT COALESCE(SUM(subtotal),0) FROM detalle_orden WHERE id_orden = NEW.id_orden)
+    WHERE id_orden = NEW.id_orden;
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_detalle_au`;
+DELIMITER $$
+CREATE TRIGGER `trg_detalle_au` AFTER UPDATE ON `detalle_orden` FOR EACH ROW BEGIN
+    UPDATE ordenes
+    SET subtotal = (SELECT COALESCE(SUM(subtotal),0) FROM detalle_orden WHERE id_orden = NEW.id_orden)
+    WHERE id_orden = NEW.id_orden;
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_detalle_bi`;
+DELIMITER $$
+CREATE TRIGGER `trg_detalle_bi` BEFORE INSERT ON `detalle_orden` FOR EACH ROW BEGIN
+    SET NEW.subtotal = NEW.cantidad * NEW.precio_unitario;
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_detalle_bu`;
+DELIMITER $$
+CREATE TRIGGER `trg_detalle_bu` BEFORE UPDATE ON `detalle_orden` FOR EACH ROW BEGIN
+    SET NEW.subtotal = NEW.cantidad * NEW.precio_unitario;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_orden_extra`
+--
+
+DROP TABLE IF EXISTS `detalle_orden_extra`;
+CREATE TABLE IF NOT EXISTS `detalle_orden_extra` (
+  `id_detalle` int UNSIGNED NOT NULL,
+  `id_extra` smallint UNSIGNED NOT NULL,
+  `precio` decimal(6,2) NOT NULL,
+  PRIMARY KEY (`id_detalle`,`id_extra`),
+  KEY `fk_doe_extra` (`id_extra`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_orden_extra`
+--
+
+INSERT INTO `detalle_orden_extra` (`id_detalle`, `id_extra`, `precio`) VALUES
+(1, 1, 1.00),
+(2, 2, 0.75),
+(2, 3, 0.50),
+(3, 2, 0.75),
+(5, 3, 0.50),
+(5, 4, 0.75),
+(6, 1, 1.00),
+(6, 4, 0.75),
+(10, 1, 1.00),
+(11, 2, 0.75),
+(11, 3, 0.50),
+(13, 1, 1.00),
+(18, 2, 0.75),
+(23, 1, 1.00),
+(26, 2, 0.75),
+(26, 4, 0.75),
+(33, 1, 1.00),
+(36, 2, 0.75),
+(36, 4, 0.75),
+(38, 1, 1.00),
+(38, 4, 0.75),
+(40, 1, 1.00);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estados_orden`
+--
+
+DROP TABLE IF EXISTS `estados_orden`;
+CREATE TABLE IF NOT EXISTS `estados_orden` (
+  `id_estado` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color_hex` char(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#A61C1C',
+  `orden_flujo` tinyint UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_estado`),
+  UNIQUE KEY `nombre` (`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `estados_orden`
+--
+
+INSERT INTO `estados_orden` (`id_estado`, `nombre`, `color_hex`, `orden_flujo`) VALUES
+(1, 'Pendiente', '#A61C1C', 1),
+(2, 'En preparación', '#F4C430', 2),
+(3, 'Lista', '#1B4332', 3),
+(4, 'Entregada', '#D4AF37', 4),
+(5, 'Cancelada', '#6C757D', 5);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `extras`
+--
+
+DROP TABLE IF EXISTS `extras`;
+CREATE TABLE IF NOT EXISTS `extras` (
+  `id_extra` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `precio` decimal(6,2) NOT NULL DEFAULT '0.00',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_extra`),
+  UNIQUE KEY `nombre` (`nombre`)
+) ;
+
+--
+-- Volcado de datos para la tabla `extras`
+--
+
+INSERT INTO `extras` (`id_extra`, `nombre`, `precio`, `activo`) VALUES
+(1, 'Extra Queso', 1.00, 1),
+(2, 'Champiñones', 0.75, 1),
+(3, 'Jalapeño', 0.50, 1),
+(4, 'Aceitunas', 0.75, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `metodos_pago`
+--
+
+DROP TABLE IF EXISTS `metodos_pago`;
+CREATE TABLE IF NOT EXISTS `metodos_pago` (
+  `id_metodo_pago` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id_metodo_pago`),
+  UNIQUE KEY `nombre` (`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `metodos_pago`
+--
+
+INSERT INTO `metodos_pago` (`id_metodo_pago`, `nombre`) VALUES
+(1, 'Efectivo'),
+(3, 'Pago en app'),
+(2, 'Tarjeta');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ordenes`
+--
+
+DROP TABLE IF EXISTS `ordenes`;
+CREATE TABLE IF NOT EXISTS `ordenes` (
+  `id_orden` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_cliente` int UNSIGNED DEFAULT NULL,
+  `id_usuario` int UNSIGNED NOT NULL,
+  `id_estado` tinyint UNSIGNED NOT NULL,
+  `origen` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Mostrador',
+  `codigo_externo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `descuento` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `total` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `observaciones` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `motivo_anulacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_usuario_anula` int UNSIGNED DEFAULT NULL,
+  `fecha_anulacion` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_orden`),
+  UNIQUE KEY `codigo` (`codigo`),
+  KEY `fk_ord_cliente` (`id_cliente`),
+  KEY `fk_ord_usuario` (`id_usuario`),
+  KEY `fk_ord_anula` (`id_usuario_anula`),
+  KEY `idx_ord_fecha` (`fecha_creacion`),
+  KEY `idx_ord_estado` (`id_estado`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `ordenes`
+--
+
+INSERT INTO `ordenes` (`id_orden`, `codigo`, `id_cliente`, `id_usuario`, `id_estado`, `origen`, `codigo_externo`, `subtotal`, `descuento`, `total`, `observaciones`, `fecha_creacion`, `motivo_anulacion`, `id_usuario_anula`, `fecha_anulacion`) VALUES
+(1, 'ORD-0001', 1, 2, 1, 'Uber Eats', 'UE-48213', 8.50, 0.00, 8.50, NULL, '2026-10-21 17:47:26', NULL, NULL, NULL),
+(2, 'ORD-0002', NULL, 2, 4, 'Mostrador', NULL, 24.49, 0.00, 24.49, NULL, '2026-10-22 07:13:19', NULL, NULL, NULL),
+(3, 'ORD-0003', NULL, 2, 5, 'Mostrador', NULL, 27.50, 0.00, 27.50, 'Anulada por Gerencia', '2026-10-22 07:19:25', NULL, NULL, NULL),
+(4, 'ORD-0004', NULL, 2, 1, 'Mostrador', NULL, 37.73, 0.00, 37.73, NULL, '2026-10-22 09:37:21', NULL, NULL, NULL),
+(5, 'ORD-0005', NULL, 1, 5, 'Mostrador', NULL, 21.49, 0.00, 21.49, 'Anulada por Gerencia', '2026-10-23 00:18:15', NULL, NULL, NULL),
+(6, 'ORD-0006', NULL, 2, 2, 'Mostrador', NULL, 40.18, 0.00, 40.18, NULL, '2026-10-23 10:10:40', NULL, NULL, NULL),
+(7, 'ORD-0007', NULL, 1, 1, 'Mostrador', NULL, 12.99, 0.00, 12.99, NULL, '2026-10-23 10:13:38', NULL, NULL, NULL),
+(8, 'ORD-0008', NULL, 2, 4, 'Mostrador', NULL, 8.45, 0.00, 8.45, NULL, '2026-10-24 13:45:38', NULL, NULL, NULL),
+(9, 'ORD-0009', NULL, 2, 4, 'Mostrador', NULL, 20.99, 0.00, 20.99, NULL, '2026-10-24 13:46:02', NULL, NULL, NULL),
+(10, 'ORD-0010', NULL, 2, 4, 'Mostrador', NULL, 24.95, 0.00, 24.95, NULL, '2026-10-24 13:46:12', NULL, NULL, NULL),
+(11, 'ORD-0011', NULL, 2, 4, 'Mostrador', NULL, 24.99, 0.00, 24.99, NULL, '2026-10-24 13:46:19', NULL, NULL, NULL),
+(12, 'ORD-0012', NULL, 2, 4, 'Mostrador', NULL, 35.43, 0.00, 35.43, NULL, '2026-10-26 13:43:36', NULL, NULL, NULL),
+(13, 'ORD-0013', NULL, 2, 4, 'Mostrador', NULL, 16.00, 0.00, 16.00, NULL, '2026-10-26 14:03:37', NULL, NULL, NULL),
+(14, 'ORD-0014', NULL, 2, 4, 'Mostrador', NULL, 8.45, 0.00, 8.45, NULL, '2026-10-26 14:18:41', NULL, NULL, NULL),
+(15, 'ORD-0015', NULL, 2, 4, 'Mostrador', NULL, 9.25, 0.00, 9.25, NULL, '2026-10-26 15:22:50', NULL, NULL, NULL),
+(16, 'ORD-0016', NULL, 2, 4, 'Mostrador', NULL, 26.98, 0.00, 26.98, NULL, '2026-10-26 15:31:05', NULL, NULL, NULL),
+(17, 'ORD-0017', NULL, 2, 4, 'Mostrador', NULL, 5.00, 0.00, 5.00, NULL, '2026-10-26 15:48:14', NULL, NULL, NULL),
+(18, 'ORD-0018', NULL, 1, 1, 'Mostrador', NULL, 28.44, 0.00, 28.44, NULL, '2026-10-26 16:48:50', NULL, NULL, NULL);
+
+--
+-- Disparadores `ordenes`
+--
+DROP TRIGGER IF EXISTS `trg_orden_bi`;
+DELIMITER $$
+CREATE TRIGGER `trg_orden_bi` BEFORE INSERT ON `ordenes` FOR EACH ROW BEGIN
+    SET NEW.total = GREATEST(NEW.subtotal - NEW.descuento, 0);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_orden_bu`;
+DELIMITER $$
+CREATE TRIGGER `trg_orden_bu` BEFORE UPDATE ON `ordenes` FOR EACH ROW BEGIN
+    SET NEW.total = GREATEST(NEW.subtotal - NEW.descuento, 0);
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pagos`
+--
+
+DROP TABLE IF EXISTS `pagos`;
+CREATE TABLE IF NOT EXISTS `pagos` (
+  `id_pago` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_orden` int UNSIGNED NOT NULL,
+  `id_metodo_pago` tinyint UNSIGNED NOT NULL,
+  `id_usuario` int UNSIGNED NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `fecha_pago` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_pago`),
+  KEY `fk_pago_orden` (`id_orden`),
+  KEY `fk_pago_metodo` (`id_metodo_pago`),
+  KEY `fk_pago_usuario` (`id_usuario`)
+) ;
+
+--
+-- Volcado de datos para la tabla `pagos`
+--
+
+INSERT INTO `pagos` (`id_pago`, `id_orden`, `id_metodo_pago`, `id_usuario`, `monto`, `fecha_pago`) VALUES
+(1, 1, 1, 2, 8.50, '2026-10-21 17:47:26'),
+(2, 3, 1, 2, 27.50, '2026-10-22 07:19:25'),
+(3, 4, 1, 2, 37.73, '2026-10-22 09:37:21'),
+(4, 7, 1, 1, 12.99, '2026-10-23 10:13:38'),
+(5, 8, 1, 2, 8.45, '2026-10-24 13:45:38'),
+(6, 9, 1, 2, 20.99, '2026-10-24 13:46:02'),
+(7, 10, 1, 2, 24.95, '2026-10-24 13:46:12'),
+(8, 12, 1, 2, 35.43, '2026-10-26 13:43:36'),
+(9, 13, 1, 2, 16.00, '2026-10-26 14:03:37'),
+(10, 14, 1, 2, 8.45, '2026-10-26 14:18:41'),
+(11, 17, 1, 2, 5.00, '2026-10-26 15:48:14'),
+(12, 18, 1, 1, 28.44, '2026-10-26 16:48:51');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `productos`
+--
+
+DROP TABLE IF EXISTS `productos`;
+CREATE TABLE IF NOT EXISTS `productos` (
+  `id_producto` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_categoria` smallint UNSIGNED NOT NULL,
+  `nombre` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descripcion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `precio` decimal(8,2) NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_producto`),
+  UNIQUE KEY `uq_producto_nombre` (`id_categoria`,`nombre`)
+) ;
+
+--
+-- Volcado de datos para la tabla `productos`
+--
+
+INSERT INTO `productos` (`id_producto`, `id_categoria`, `nombre`, `descripcion`, `precio`, `activo`) VALUES
+(1, 1, 'Pizza Pepperoni', 'Salsa de tomate, queso mozzarella y pepperoni artesanal.', 7.50, 1),
+(2, 1, 'Pizza Carnívora', 'Pepperoni, jamón, salchicha italiana y tocino crujiente.', 12.99, 1),
+(3, 2, 'Soda Coca-Cola 1.25L', 'Gaseosa Coca-Cola de 1.25 litros.', 2.00, 1),
+(4, 1, 'pizza de segunda', 'pizza normal pero con algun problema en el proceso de preparacion', 8.45, 0),
+(5, 3, 'Tres Leches', 'una porcion del postre 3 leches listo para comer', 5.00, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto_extra`
+--
+
+DROP TABLE IF EXISTS `producto_extra`;
+CREATE TABLE IF NOT EXISTS `producto_extra` (
+  `id_producto` int UNSIGNED NOT NULL,
+  `id_extra` smallint UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_producto`,`id_extra`),
+  KEY `fk_pe_extra` (`id_extra`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `producto_extra`
+--
+
+INSERT INTO `producto_extra` (`id_producto`, `id_extra`) VALUES
+(1, 1),
+(2, 1),
+(1, 2),
+(2, 2),
+(1, 3),
+(1, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE IF NOT EXISTS `roles` (
+  `id_rol` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descripcion` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id_rol`),
+  UNIQUE KEY `nombre` (`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `roles`
+--
+
+INSERT INTO `roles` (`id_rol`, `nombre`, `descripcion`) VALUES
+(1, 'Administrador', 'Acceso total'),
+(2, 'Cajero', 'Registra órdenes y cobra'),
+(3, 'Cocina', 'Monitor de cocina');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+DROP TABLE IF EXISTS `usuarios`;
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `id_usuario` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_rol` tinyint UNSIGNED NOT NULL,
+  `nombre` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `apellido` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  `creado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  KEY `fk_usuario_rol` (`id_rol`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id_usuario`, `id_rol`, `nombre`, `apellido`, `username`, `email`, `password_hash`, `activo`, `creado_en`) VALUES
+(1, 1, 'Admin', 'General', 'admin', NULL, '$2y$12$.v8mO0GLMUpMAeJTo89Pp.nvv605GRUSXEcUviKJO7TFMHHc7ADoG', 1, '2026-10-21 17:47:25'),
+(2, 2, 'Caja', 'Uno', 'cajero', NULL, '$2y$12$mmrnR3y6UOpb5sgHMRxVVedy1F1kQOfkMyYBnFKTPc4XEMoVEx1gO', 1, '2026-10-21 17:47:25'),
+(3, 3, 'Cocina', 'Uno', 'cocina', NULL, '$2y$12$liZ8cOf8yhlSBsY.yyvh6Oq7Y5sNCIg1MUdLCyTFBxLABjEh00nt6', 1, '2026-10-21 17:47:25');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_anuladas_diarias`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_anuladas_diarias`;
+CREATE TABLE IF NOT EXISTS `v_anuladas_diarias` (
+`fecha` date
+,`num_anuladas` bigint
+,`monto_anulado` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_ordenes_cocina`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_ordenes_cocina`;
+CREATE TABLE IF NOT EXISTS `v_ordenes_cocina` (
+`id_orden` int unsigned
+,`codigo` varchar(20)
+,`origen` varchar(40)
+,`estado` varchar(30)
+,`orden_flujo` tinyint unsigned
+,`fecha_creacion` datetime
+,`minutos_transcurridos` bigint
+,`id_detalle` int unsigned
+,`producto` varchar(80)
+,`cantidad` smallint unsigned
+,`notas` varchar(150)
+,`extras` text
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_ordenes_pago`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_ordenes_pago`;
+CREATE TABLE IF NOT EXISTS `v_ordenes_pago` (
+`id_orden` int unsigned
+,`codigo` varchar(20)
+,`total` decimal(10,2)
+,`pagado` decimal(32,2)
+,`pendiente` decimal(33,2)
+,`estado_pago` varchar(17)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_productos_mas_vendidos`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_productos_mas_vendidos`;
+CREATE TABLE IF NOT EXISTS `v_productos_mas_vendidos` (
+`fecha` date
+,`id_producto` int unsigned
+,`producto` varchar(80)
+,`unidades` decimal(27,0)
+,`ingresos` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_ventas_diarias`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_ventas_diarias`;
+CREATE TABLE IF NOT EXISTS `v_ventas_diarias` (
+`fecha` date
+,`origen` varchar(40)
+,`num_ordenes` bigint
+,`total_vendido` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `v_ventas_por_categoria`
+-- (Véase abajo para la vista actual)
+--
+DROP VIEW IF EXISTS `v_ventas_por_categoria`;
+CREATE TABLE IF NOT EXISTS `v_ventas_por_categoria` (
+`fecha` date
+,`id_categoria` smallint unsigned
+,`categoria` varchar(50)
+,`cantidad_vendida` decimal(27,0)
+,`ingreso_subtotal` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_anuladas_diarias`
+--
+DROP TABLE IF EXISTS `v_anuladas_diarias`;
+
+DROP VIEW IF EXISTS `v_anuladas_diarias`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_anuladas_diarias`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, count(0) AS `num_anuladas`, sum(`o`.`total`) AS `monto_anulado` FROM (`ordenes` `o` join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` = 'Cancelada')))) GROUP BY cast(`o`.`fecha_creacion` as date) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_ordenes_cocina`
+--
+DROP TABLE IF EXISTS `v_ordenes_cocina`;
+
+DROP VIEW IF EXISTS `v_ordenes_cocina`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ordenes_cocina`  AS SELECT `o`.`id_orden` AS `id_orden`, `o`.`codigo` AS `codigo`, `o`.`origen` AS `origen`, `e`.`nombre` AS `estado`, `e`.`orden_flujo` AS `orden_flujo`, `o`.`fecha_creacion` AS `fecha_creacion`, timestampdiff(MINUTE,`o`.`fecha_creacion`,now()) AS `minutos_transcurridos`, `d`.`id_detalle` AS `id_detalle`, `p`.`nombre` AS `producto`, `d`.`cantidad` AS `cantidad`, `d`.`notas` AS `notas`, (select group_concat(`x`.`nombre` order by `x`.`nombre` ASC separator ', ') from (`detalle_orden_extra` `dx` join `extras` `x` on((`x`.`id_extra` = `dx`.`id_extra`))) where (`dx`.`id_detalle` = `d`.`id_detalle`)) AS `extras` FROM (((`ordenes` `o` join `estados_orden` `e` on((`e`.`id_estado` = `o`.`id_estado`))) join `detalle_orden` `d` on((`d`.`id_orden` = `o`.`id_orden`))) join `productos` `p` on((`p`.`id_producto` = `d`.`id_producto`))) WHERE (`e`.`nombre` in ('Pendiente','En preparación','Lista')) ORDER BY `o`.`fecha_creacion` ASC, `d`.`id_detalle` ASC ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_ordenes_pago`
+--
+DROP TABLE IF EXISTS `v_ordenes_pago`;
+
+DROP VIEW IF EXISTS `v_ordenes_pago`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ordenes_pago`  AS SELECT `o`.`id_orden` AS `id_orden`, `o`.`codigo` AS `codigo`, `o`.`total` AS `total`, coalesce(sum(`pg`.`monto`),0) AS `pagado`, greatest((`o`.`total` - coalesce(sum(`pg`.`monto`),0)),0) AS `pendiente`, (case when ((`o`.`total` > 0) and (coalesce(sum(`pg`.`monto`),0) >= `o`.`total`)) then 'Pagada' else 'Pendiente de pago' end) AS `estado_pago` FROM (`ordenes` `o` left join `pagos` `pg` on((`pg`.`id_orden` = `o`.`id_orden`))) GROUP BY `o`.`id_orden`, `o`.`codigo`, `o`.`total` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_productos_mas_vendidos`
+--
+DROP TABLE IF EXISTS `v_productos_mas_vendidos`;
+
+DROP VIEW IF EXISTS `v_productos_mas_vendidos`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_productos_mas_vendidos`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, `p`.`id_producto` AS `id_producto`, `p`.`nombre` AS `producto`, sum(`d`.`cantidad`) AS `unidades`, sum(`d`.`subtotal`) AS `ingresos` FROM (((`detalle_orden` `d` join `ordenes` `o` on((`o`.`id_orden` = `d`.`id_orden`))) join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` <> 'Cancelada')))) join `productos` `p` on((`p`.`id_producto` = `d`.`id_producto`))) GROUP BY cast(`o`.`fecha_creacion` as date), `p`.`id_producto`, `p`.`nombre` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_ventas_diarias`
+--
+DROP TABLE IF EXISTS `v_ventas_diarias`;
+
+DROP VIEW IF EXISTS `v_ventas_diarias`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas_diarias`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, `o`.`origen` AS `origen`, count(0) AS `num_ordenes`, sum(`o`.`total`) AS `total_vendido` FROM (`ordenes` `o` join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` <> 'Cancelada')))) GROUP BY cast(`o`.`fecha_creacion` as date), `o`.`origen` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `v_ventas_por_categoria`
+--
+DROP TABLE IF EXISTS `v_ventas_por_categoria`;
+
+DROP VIEW IF EXISTS `v_ventas_por_categoria`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas_por_categoria`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, `c`.`id_categoria` AS `id_categoria`, `c`.`nombre` AS `categoria`, sum(`d`.`cantidad`) AS `cantidad_vendida`, sum(`d`.`subtotal`) AS `ingreso_subtotal` FROM ((((`detalle_orden` `d` join `ordenes` `o` on((`o`.`id_orden` = `d`.`id_orden`))) join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` <> 'Cancelada')))) join `productos` `p` on((`p`.`id_producto` = `d`.`id_producto`))) join `categorias` `c` on((`c`.`id_categoria` = `p`.`id_categoria`))) GROUP BY cast(`o`.`fecha_creacion` as date), `c`.`id_categoria`, `c`.`nombre` ;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `cierres_caja`
+--
+ALTER TABLE `cierres_caja`
+  ADD CONSTRAINT `fk_cierre_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `detalle_orden`
+--
+ALTER TABLE `detalle_orden`
+  ADD CONSTRAINT `fk_det_orden` FOREIGN KEY (`id_orden`) REFERENCES `ordenes` (`id_orden`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_det_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `detalle_orden_extra`
+--
+ALTER TABLE `detalle_orden_extra`
+  ADD CONSTRAINT `fk_doe_detalle` FOREIGN KEY (`id_detalle`) REFERENCES `detalle_orden` (`id_detalle`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_doe_extra` FOREIGN KEY (`id_extra`) REFERENCES `extras` (`id_extra`);
+
+--
+-- Filtros para la tabla `ordenes`
+--
+ALTER TABLE `ordenes`
+  ADD CONSTRAINT `fk_ord_anula` FOREIGN KEY (`id_usuario_anula`) REFERENCES `usuarios` (`id_usuario`),
+  ADD CONSTRAINT `fk_ord_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`),
+  ADD CONSTRAINT `fk_ord_estado` FOREIGN KEY (`id_estado`) REFERENCES `estados_orden` (`id_estado`),
+  ADD CONSTRAINT `fk_ord_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodos_pago` (`id_metodo_pago`),
+  ADD CONSTRAINT `fk_pago_orden` FOREIGN KEY (`id_orden`) REFERENCES `ordenes` (`id_orden`),
+  ADD CONSTRAINT `fk_pago_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `productos`
+--
+ALTER TABLE `productos`
+  ADD CONSTRAINT `fk_prod_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`);
+
+--
+-- Filtros para la tabla `producto_extra`
+--
+ALTER TABLE `producto_extra`
+  ADD CONSTRAINT `fk_pe_extra` FOREIGN KEY (`id_extra`) REFERENCES `extras` (`id_extra`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_pe_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
