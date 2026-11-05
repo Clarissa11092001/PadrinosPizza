@@ -9,143 +9,106 @@ $extraCss = '/Padrino\'s_Pizza/assets/css/Pizarra.css';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-    <!-- Sub-Header específico de cocina -->
-    <div class="bg-gray-950 p-2 px-5 border-b border-gray-800 flex justify-between items-center shadow-md">
-        <span class="text-xs text-amber-200 font-semibold uppercase tracking-widest">Monitor de Cocina</span>
+    <!-- Franja Informativa KDS con colores corporativos -->
+    <div class="bg-[#1B4332] p-2 px-5 border-b border-[#D4AF37]/40 flex justify-center items-center shadow-md shrink-0">
         <span class="text-xs bg-red-600 px-3 py-1 rounded-full font-bold animate-pulse text-white"><?= $totalActivas ?> Órdenes Activas</span>
     </div>
 
-    <!-- Tablero de 4 Columnas -->
-    <main class="flex-1 grid grid-cols-4 gap-4 p-4 overflow-hidden bg-gray-950">
+    <!-- Tablero de 3 Columnas con Scroll Individual -->
+    <main class="flex-1 grid grid-cols-3 gap-4 p-4 overflow-hidden bg-white">
 
-        <!-- COLUMNA 1: EN ESPERA -->
-        <div class="bg-gray-900/80 rounded-2xl p-3 border border-red-900/50 flex flex-col h-full shadow-inner">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-red-500/30">
-                <h2 class="font-bold text-sm text-red-400 flex items-center space-x-1.5 uppercase tracking-wider"><span>🔴 En Espera</span></h2>
-                <span class="bg-red-950 text-red-300 text-xs font-bold px-2 py-0.5 rounded-full border border-red-800"><?= count($ordenes['Pendiente']) ?></span>
+        <?php 
+        $columnasConfig = [
+            'Pendiente'      => ['titulo' => '🔴 En Espera', 'color' => 'red', 'btnText' => 'Iniciar Preparación ➔', 'nuevoEstado' => 2, 'esReversa' => false],
+            'En preparación' => ['titulo' => '🟡 En Proceso', 'color' => 'amber', 'btnText' => 'Marcar como Lista ➔', 'nuevoEstado' => 3, 'esReversa' => false],
+            'Lista'          => ['titulo' => '🟢 Listas', 'color' => 'emerald', 'btnText' => '↩ Regresar a En Proceso', 'nuevoEstado' => 2, 'esReversa' => true]
+        ];
+
+        foreach ($columnasConfig as $estadoNombre => $config): 
+            $c = $config['color'];
+            $listaOrdenes = $ordenes[$estadoNombre] ?? [];
+        ?>
+
+        <!-- COLUMNA: <?= $estadoNombre ?> -->
+        <div class="bg-gray-900/80 rounded-2xl p-3 border border-<?= $c ?>-900/50 flex flex-col h-full shadow-inner overflow-hidden">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-<?= $c ?>-500/30 shrink-0">
+                <h2 class="font-bold text-sm text-<?= $c ?>-400 flex items-center space-x-1.5 uppercase tracking-wider"><span><?= $config['titulo'] ?></span></h2>
+                <span class="bg-<?= $c ?>-950 text-<?= $c ?>-300 text-xs font-bold px-2 py-0.5 rounded-full border border-<?= $c ?>-800"><?= count($listaOrdenes) ?></span>
             </div>
+
+            <!-- Scroll por columna -->
             <div class="flex-1 space-y-3 overflow-y-auto pr-1">
-                <?php foreach ($ordenes['Pendiente'] as $ord): ?>
-                <div class="bg-gray-800 p-3 rounded-xl border border-red-500/60 shadow-md flex flex-col justify-between">
+                <?php foreach ($listaOrdenes as $ord): ?>
+                <div class="bg-gray-800 p-3 rounded-xl border border-<?= $c ?>-500/60 shadow-md flex flex-col justify-between space-y-2">
                     <div>
+                        <!-- Código de Orden + Cliente -->
                         <div class="flex justify-between items-start mb-1">
-                            <span class="font-extrabold text-sm text-red-400">#<?= htmlspecialchars($ord['codigo']) ?></span>
+                            <div>
+                                <span class="font-extrabold text-sm text-<?= $c ?>-400">#<?= htmlspecialchars($ord['codigo']) ?></span>
+                                <h4 class="font-bold text-xs text-white uppercase tracking-wide truncate max-w-[130px]"><?= htmlspecialchars($ord['cliente']) ?></h4>
+                            </div>
+                            
+                            <!-- Banner de Hora Solicitada -->
+                            <?php if ($ord['hora_entrega']): ?>
+                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-md font-extrabold shadow">
+                                    ⏰ <?= $ord['hora_entrega'] ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
-                        <p class="text-[11px] text-gray-400 mb-2">Hace <?= $ord['minutos'] ?> min</p>
-                        <div class="bg-gray-900/90 p-2 rounded-lg text-xs space-y-1 mb-3">
+
+                        <p class="text-[10px] text-gray-400 mb-2">Hace <?= $ord['minutos'] ?> min</p>
+
+                        <!-- Lista de Productos -->
+                        <div class="bg-gray-900/90 p-2.5 rounded-lg text-xs space-y-1.5 mb-2 border border-gray-700/40">
                             <?php foreach ($ord['detalles'] as $det): ?>
-                                <p class="font-bold text-gray-200"><?= $det['cantidad'] ?>x <?= htmlspecialchars($det['producto']) ?></p>
-                                <?php if($det['extras']): ?>
-                                    <p class="text-[10px] text-amber-300">★ <?= htmlspecialchars($det['extras']) ?></p>
-                                <?php endif; ?>
+                                <div>
+                                    <p class="font-bold text-gray-200"><?= $det['cantidad'] ?>x <?= htmlspecialchars($det['producto']) ?></p>
+                                    <?php if($det['extras']): ?>
+                                        <p class="text-[10px] text-amber-300 font-semibold pl-2">★ Extra: <?= htmlspecialchars($det['extras']) ?></p>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
                         </div>
-                    </div>
-                    <form method="POST">
-                        <input type="hidden" name="id_orden" value="<?= $ord['id_orden'] ?>">
-                        <!-- Estado 2 = En preparación -->
-                        <input type="hidden" name="nuevo_estado" value="2">
-                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
-                            Iniciar Preparación ➔
-                        </button>
-                    </form>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
 
-        <!-- COLUMNA 2: EN PROCESO -->
-        <div class="bg-gray-900/80 rounded-2xl p-3 border border-amber-900/50 flex flex-col h-full shadow-inner">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-amber-500/30">
-                <h2 class="font-bold text-sm text-amber-400 flex items-center space-x-1.5 uppercase tracking-wider"><span>🟡 En Proceso</span></h2>
-                <span class="bg-amber-950 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-800"><?= count($ordenes['En preparación']) ?></span>
-            </div>
-            <div class="flex-1 space-y-3 overflow-y-auto pr-1">
-                <?php foreach ($ordenes['En preparación'] as $ord): ?>
-                <div class="bg-gray-800 p-3 rounded-xl border border-amber-500/60 shadow-md flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="font-extrabold text-sm text-amber-400">#<?= htmlspecialchars($ord['codigo']) ?></span>
-                        </div>
-                        <p class="text-[11px] text-gray-400 mb-2">Hace <?= $ord['minutos'] ?> min</p>
-                        <div class="bg-gray-900/90 p-2 rounded-lg text-xs space-y-1 mb-3">
-                            <?php foreach ($ord['detalles'] as $det): ?>
-                                <p class="font-bold text-gray-200"><?= $det['cantidad'] ?>x <?= htmlspecialchars($det['producto']) ?></p>
-                                <?php if($det['extras']): ?>
-                                    <p class="text-[10px] text-amber-300">★ <?= htmlspecialchars($det['extras']) ?></p>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </div>
+                        <!-- Observaciones de la Orden -->
+                        <?php if (!empty($ord['notas_orden'])): ?>
+                            <div class="bg-red-950/40 border border-red-500/40 p-2 rounded-lg text-[11px] text-red-200 font-medium mb-2">
+                                📝 <span class="underline font-bold">Nota:</span> <?= htmlspecialchars($ord['notas_orden']) ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <form method="POST">
-                        <input type="hidden" name="id_orden" value="<?= $ord['id_orden'] ?>">
-                        <!-- Estado 3 = Lista -->
-                        <input type="hidden" name="nuevo_estado" value="3">
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
-                            Marcar como Lista ➔
-                        </button>
-                    </form>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
 
-        <!-- COLUMNA 3: LISTAS -->
-        <div class="bg-gray-900/80 rounded-2xl p-3 border border-emerald-900/50 flex flex-col h-full shadow-inner">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-emerald-500/30">
-                <h2 class="font-bold text-sm text-emerald-400 flex items-center space-x-1.5 uppercase tracking-wider"><span>🟢 Listas</span></h2>
-                <span class="bg-emerald-950 text-emerald-300 text-xs font-bold px-2 py-0.5 rounded-full border border-emerald-800"><?= count($ordenes['Lista']) ?></span>
-            </div>
-            <div class="flex-1 space-y-3 overflow-y-auto pr-1">
-                <?php foreach ($ordenes['Lista'] as $ord): ?>
-                <div class="bg-gray-800 p-3 rounded-xl border border-emerald-500/60 shadow-md flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="font-extrabold text-sm text-emerald-400">#<?= htmlspecialchars($ord['codigo']) ?></span>
-                        </div>
-                        <p class="text-[11px] text-gray-400 mb-2">Empacado • Hace <?= $ord['minutos'] ?> min</p>
-                        <div class="bg-gray-900/90 p-2 rounded-lg text-xs space-y-1 mb-3">
-                            <?php foreach ($ord['detalles'] as $det): ?>
-                                <p class="font-bold text-gray-200"><?= $det['cantidad'] ?>x <?= htmlspecialchars($det['producto']) ?></p>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <form method="POST">
-                        <input type="hidden" name="id_orden" value="<?= $ord['id_orden'] ?>">
-                        <!-- Estado 4 = Entregada -->
-                        <input type="hidden" name="nuevo_estado" value="4">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
-                            Marcar Entregada ➔
-                        </button>
-                    </form>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
+                    <!-- Acciones según estado -->
+                    <?php if ($config['nuevoEstado'] > 0): ?>
+                        <form method="POST" onsubmit="return <?= $config['esReversa'] ? "confirm('⚠️ ¿Estás seguro de regresar la orden #" . htmlspecialchars($ord['codigo']) . " a \\'En Proceso\\'?');" : "true" ?>;">
+                            <input type="hidden" name="id_orden" value="<?= $ord['id_orden'] ?>">
+                            <input type="hidden" name="nuevo_estado" value="<?= $config['nuevoEstado'] ?>">
+                            <button type="submit" 
+                                    class="w-full font-bold py-1.5 rounded-lg text-xs transition cursor-pointer <?= $config['esReversa'] ? 'bg-amber-700 hover:bg-amber-800 text-white border border-amber-500/50' : 'bg-' . ($c === 'red' ? 'amber' : 'emerald') . '-600 hover:opacity-90 text-white' ?>">
+                                <?= $config['btnText'] ?>
+                            </button>
+                        </form>
+                    <?php endif; ?>
 
-        <!-- COLUMNA 4: ENTREGADAS -->
-        <div class="bg-gray-900/80 rounded-2xl p-3 border border-gray-800 flex flex-col h-full shadow-inner opacity-80">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-700/50">
-                <h2 class="font-bold text-sm text-gray-400 flex items-center space-x-1.5 uppercase tracking-wider"><span>⚪ Entregadas</span></h2>
-                <span class="bg-gray-800 text-gray-400 text-xs font-bold px-2 py-0.5 rounded-full border border-gray-700"><?= count($ordenes['Entregada']) ?></span>
-            </div>
-            <div class="flex-1 space-y-3 overflow-y-auto pr-1">
-                <?php foreach ($ordenes['Entregada'] as $ord): ?>
-                <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700 shadow-md flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="font-extrabold text-sm text-gray-300">#<?= htmlspecialchars($ord['codigo']) ?></span>
-                        </div>
-                        <p class="text-[11px] text-gray-400 mb-2">Finalizada hace <?= $ord['minutos'] ?> min</p>
-                    </div>
-                    <button class="w-full bg-gray-700 font-bold py-1.5 rounded-lg text-xs text-gray-400 cursor-default" disabled>
-                        ✓ Finalizada
-                    </button>
+                    <!-- Alerta de día anterior -->
+                    <?php if (!empty($ord['es_dia_anterior'])): ?>
+                        <span class="bg-red-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-md tracking-wider uppercase animate-bounce border border-red-300">
+                            ⚠️ Rezagada (Ayer)
+                        </span>
+                    <?php endif; ?>
+
                 </div>
                 <?php endforeach; ?>
             </div>
         </div>
+        <?php endforeach; ?>
 
     </main>
 
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php
+$extraJs = '/Padrino\'s_Pizza/assets/js/Pizarra.js';
+?>
+<script src="/Padrino's_Pizza/assets/JS/RefrescarPizarras.js"></script>
+<?php
+require_once __DIR__ . '/../../includes/footer.php';
+?>

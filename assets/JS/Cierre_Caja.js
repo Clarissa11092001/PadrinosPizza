@@ -4,13 +4,31 @@ const URL_LOGOUT = "LoginController.php?action=logout";
 let montoEsperadoActual = 0;
 
 function abrirModalCierre() {
-  console.log("Consultando estado de caja...");
-  
+  console.log("Verificando órdenes pendientes antes del cierre...");
+
+  // 1. Verificar si hay órdenes sin entregar o sin cobrar
+  fetch('CierreController.php?accion=verificar_pendientes')
+    .then(res => res.json())
+    .then(data => {
+      if (data.ordenes_pendientes > 0) {
+        alert(`⛔ ATENCIÓN: No puedes realizar el Cierre de Caja aún.\n\nTienes ${data.ordenes_pendientes} orden(es) pendiente(s) de entregar o cobrar en el sistema. Debes procesarlas o marcarlas como mermas/anuladas antes de cerrar el turno.`);
+        return;
+      }
+      
+      // 2. Si no hay pendientes, consultar estado de caja
+      consultarEstadoCajaYMostrarModal();
+    })
+    .catch(() => {
+      // Si la ruta previa no devuelve JSON, procede a la verificación normal
+      consultarEstadoCajaYMostrarModal();
+    });
+}
+
+function consultarEstadoCajaYMostrarModal() {
   fetch('CierreController.php?estado_caja=1')
     .then(res => res.json())
     .then(data => {
       if (!data.activa) {
-        // Si no hay caja abierta, desplegar modal de apertura
         const modalApertura = document.getElementById('modal-apertura');
         if (modalApertura) {
           modalApertura.classList.remove('hidden');
@@ -19,7 +37,6 @@ function abrirModalCierre() {
           window.location.href = URL_LOGOUT;
         }
       } else {
-        // Llenar montos en la interfaz con comprobación previa de existencia
         montoEsperadoActual = parseFloat(data.esperado);
 
         const elBase = document.getElementById('cierre-base');
@@ -66,7 +83,7 @@ function procesarApertura(e) {
     .then(data => {
       alert(data.message);
       if (data.success) {
-        location.reload(); // Recarga la página para activar la caja
+        location.reload();
       }
     })
     .catch(err => {
@@ -75,7 +92,6 @@ function procesarApertura(e) {
     });
 }
 
-// Ocultar modal al hacer clic en la X
 function cerrarModalCierre() {
   const modalCierre = document.getElementById('modal-cierre');
   if (modalCierre) {
@@ -84,14 +100,12 @@ function cerrarModalCierre() {
   }
 }
 
-// Botón "Solo Salir"
 function cerrarSesionSinCierre() {
   if (confirm('¿Seguro que deseas salir al Login sin realizar el cierre de caja? El turno continuará abierto.')) {
     window.location.href = URL_LOGOUT;
   }
 }
 
-// Procesar el Arqueo y Salir
 function procesarCierreYSalir(e) {
   e.preventDefault();
 
@@ -103,7 +117,6 @@ function procesarCierreYSalir(e) {
   const declarado = parseFloat(inputDeclarado.value) || 0;
   const observaciones = inputObs.value.trim();
 
-  // 1. Validar si hay descuadre de dinero entre lo esperado y lo contado
   const diferencia = declarado - montoEsperadoActual;
 
   if (Math.abs(diferencia) > 0.01 && observaciones.length < 5) {
@@ -112,7 +125,6 @@ function procesarCierreYSalir(e) {
     return;
   }
 
-  // 2. Enviar petición AJAX a CierreController.php
   const formData = new FormData();
   formData.append('accion', 'cerrar');
   formData.append('monto_declarado', declarado);

@@ -1,15 +1,24 @@
 <?php
+
 /**
  * Variables inyectadas por GerenciaController.php:
  * @var array $kpis
  * @var array $auditoria
  * @var array $ventasCategoria
+ * @var array|null $flash
  */
 $bodyClasses = 'bg-[#0E1A14] text-white min-h-screen font-sans';
+$vistaActual = 'gerencia';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
   <div class="container mx-auto p-6 max-w-7xl">
+
+    <?php if (!empty($flash)): ?>
+      <div class="mb-6 rounded-xl px-4 py-3 text-sm font-semibold border <?= $flash['tipo'] === 'ok' ? 'bg-emerald-900/40 text-emerald-300 border-emerald-500' : 'bg-red-900/40 text-red-300 border-red-500' ?>">
+        <?= $flash['tipo'] === 'ok' ? '✔' : '⚠️' ?> <?= htmlspecialchars($flash['mensaje']) ?>
+      </div>
+    <?php endif; ?>
 
     <!-- Tarjetas de Métricas Principales (KPIs Dinámicos) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -56,7 +65,7 @@ require_once __DIR__ . '/../../includes/header.php';
               <thead>
                 <tr class="bg-[#1B4332]/60 text-[#D4AF37] text-xs uppercase border-b border-[#D4AF37]/30">
                   <th class="p-3">Código</th>
-                  <th class="p-3">Cajero / Cliente</th>
+                  <th class="p-3">Cliente</th>
                   <th class="p-3">Monto</th>
                   <th class="p-3">Estado</th>
                   <th class="p-3 text-center">Acción (Gerencia)</th>
@@ -68,7 +77,15 @@ require_once __DIR__ . '/../../includes/header.php';
                 <?php endif; foreach ($auditoria as $ord): ?>
                 <tr class="hover:bg-[#D4AF37]/5 transition">
                   <td class="p-3 font-bold text-white">#<?= htmlspecialchars($ord['codigo']) ?></td>
-                  <td class="p-3 text-gray-300"><?= htmlspecialchars($ord['cliente']) ?></td>
+                  <td class="p-3 text-gray-300">
+                    <?= htmlspecialchars($ord['cliente']) ?>
+                    <?php if (!empty($ord['es_atrasada'])): ?>
+                      <span class="ml-1 bg-red-600 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Atrasada · <?= date('d/m', strtotime($ord['fecha_creacion'])) ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($ord['cajero'])): ?>
+                      <span class="block text-[10px] text-gray-500">Caja: <?= htmlspecialchars($ord['cajero']) ?></span>
+                    <?php endif; ?>
+                  </td>
                   <td class="p-3 font-semibold text-[#D4AF37]">$<?= number_format($ord['total'], 2) ?></td>
                   <td class="p-3">
                     <?php if ($ord['id_estado'] == 5): ?>
@@ -78,15 +95,21 @@ require_once __DIR__ . '/../../includes/header.php';
                     <?php endif; ?>
                   </td>
                   <td class="p-3 text-center">
-                    <?php if ($ord['id_estado'] != 5): ?>
-                      <form method="POST" onsubmit="return confirm('¿Seguro que deseas anular la orden #<?= $ord['codigo'] ?>?');" class="inline">
-                        <input type="hidden" name="anular_id" value="<?= $ord['id_orden'] ?>">
-                        <button type="submit" class="bg-[#A61C1C] hover:bg-red-800 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow">
-                          Anular Order
-                        </button>
-                      </form>
+                    <?php if (in_array((int)$ord['id_estado'], [1, 2, 3], true)): ?>
+                      <button type="button"
+                              class="btn-anular bg-[#A61C1C] hover:bg-red-800 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow cursor-pointer"
+                              data-id="<?= $ord['id_orden'] ?>"
+                              data-codigo="<?= htmlspecialchars($ord['codigo']) ?>"
+                              data-cliente="<?= htmlspecialchars($ord['cliente']) ?>"
+                              data-total="<?= number_format((float)$ord['total'], 2, '.', '') ?>"
+                              data-pagado="<?= number_format((float)$ord['pagado'], 2, '.', '') ?>"
+                              data-metodo="<?= htmlspecialchars($ord['metodo_pago'] ?? '') ?>">
+                        Anular
+                      </button>
+                    <?php elseif ((int)$ord['id_estado'] === 5): ?>
+                      <span class="text-xs text-gray-400 italic"><?= htmlspecialchars($ord['motivo_anulacion'] ?: 'Anulada') ?></span>
                     <?php else: ?>
-                      <span class="text-xs text-gray-500 italic"><?= htmlspecialchars($ord['observaciones'] ?: 'Anulada') ?></span>
+                      <span class="text-xs text-gray-500 italic">Entregada</span>
                     <?php endif; ?>
                   </td>
                 </tr>
@@ -170,4 +193,10 @@ require_once __DIR__ . '/../../includes/header.php';
 
   </div>
 
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<!-- Componente Modal de Anulación -->
+<?php require_once __DIR__ . '/../Components/Modal_Anulacion.php'; ?>
+
+<?php
+$extraJs = asset_v('assets/JS/Anulacion.js');
+require_once __DIR__ . '/../../includes/footer.php';
+?>

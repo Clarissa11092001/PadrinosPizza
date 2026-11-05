@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Importaciones con rutas y mayúsculas exactas
 require_once __DIR__ . '/../includes/Auth.php';
 require_once __DIR__ . '/../models/CierreModel.php';
+require_once __DIR__ . '/../models/OrdenModel.php';
 
 $id_usuario = $_SESSION['id_usuario'] ?? 1;
 
@@ -33,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Validar órdenes pendientes en cocina (Estados 1 y 2)
-        $pendientes = CierreModel::contarOrdenesPendientesTurno($id_usuario, $caja['fecha_apertura']);
+        // No se puede cerrar con órdenes de ESTA caja sin entregar (1, 2 o 3), incluidas las de días anteriores
+        $pendientes = OrdenModel::contarOrdenesSinEntregar($id_usuario);
         if ($pendientes > 0) {
             echo json_encode([
-                'success' => false, 
-                'message' => "No puedes cerrar caja. Tienes {$pendientes} orden(es) en preparación o pendientes."
+                'success' => false,
+                'message' => "No puedes cerrar caja. Tienes {$pendientes} orden(es) de esta caja sin entregar. Termínalas en la pantalla de Entregas (o pide a gerencia que las anule)."
             ]);
             exit;
         }
@@ -63,13 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Pre-chequeo de órdenes sin entregar (lo usa Cierre_Caja.js antes de abrir el modal de arqueo)
+if (isset($_GET['accion']) && $_GET['accion'] === 'verificar_pendientes') {
+    header('Content-Type: application/json');
+    echo json_encode(['ordenes_pendientes' => OrdenModel::contarOrdenesSinEntregar($id_usuario)]);
+    exit;
+}
+
 // Consulta de estado vía GET para modales
 if (isset($_GET['estado_caja'])) {
     header('Content-Type: application/json');
     $caja = CierreModel::getCajaActiva($id_usuario);
     if ($caja) {
         $ventas = CierreModel::getTotalVentasTurno($id_usuario, $caja['fecha_apertura']);
-        $pendientes = CierreModel::contarOrdenesPendientesTurno($id_usuario, $caja['fecha_apertura']);
+        $pendientes = OrdenModel::contarOrdenesSinEntregar($id_usuario);
         echo json_encode([
             'activa' => true,
             'caja' => $caja,

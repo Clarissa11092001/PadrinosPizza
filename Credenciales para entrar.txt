@@ -1,0 +1,3 @@
+gerencia:   usuario: admin    Contraseña: Admin2026!
+Cocina:     usuario: cocina    Contraseña: Cocina2026!
+POS:        usuario: cajero    Contraseña: Cajero2026!

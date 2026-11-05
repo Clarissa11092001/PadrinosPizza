@@ -11,11 +11,19 @@ if ($_SESSION['id_rol'] != 1) {
     exit();
 }
 
-// Acción de Anular Orden (Soft Delete)
+// Acción de Anular Orden (nunca se borra: queda registrado quién, cuándo y por qué)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['anular_id'])) {
-    $id_orden = intval($_POST['anular_id']);
-    $motivo = trim($_POST['motivo_anulacion'] ?? 'Anulada por Gerencia');
-    GerenciaModel::anularOrden($id_orden, $motivo);
+    $resultado = GerenciaModel::anularOrden(
+        intval($_POST['anular_id']),
+        $_POST['motivo_anulacion'] ?? '',
+        $_SESSION['id_usuario'],
+        isset($_POST['reembolso_confirmado'])
+    );
+    // Mensaje que se muestra en el dashboard tras recargar
+    $_SESSION['flash_gerencia'] = [
+        'tipo'    => $resultado['success'] ? 'ok' : 'error',
+        'mensaje' => $resultado['message']
+    ];
     header("Location: GerenciaController.php");
     exit();
 }
@@ -24,6 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['anular_id'])) {
 $kpis = GerenciaModel::getKpisDelDia();
 $auditoria = GerenciaModel::getAuditoriaOrdenes();
 $ventasCategoria = GerenciaModel::getVentasPorCategoria();
+
+// Mensaje (éxito/error) de la última acción, se muestra una sola vez
+$flash = $_SESSION['flash_gerencia'] ?? null;
+unset($_SESSION['flash_gerencia']);
 
 // Cargar la vista de Gerencia
 require_once __DIR__ . '/../views/gerencia/dashboard.php';

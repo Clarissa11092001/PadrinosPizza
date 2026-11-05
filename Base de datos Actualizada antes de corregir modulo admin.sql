@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 28-10-2026 a las 17:26:13
+-- Tiempo de generación: 05-11-2026 a las 01:47:07
 -- Versión del servidor: 8.4.7
 -- Versión de PHP: 8.3.28
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `categorias` (
   `activo` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_categoria`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `categorias`
@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `activo`) VALUES
 (1, 'Pizzas', 1),
 (2, 'Bebidas', 1),
-(3, 'Postres', 1);
+(3, 'Postres', 1),
+(4, 'Complementos', 1);
 
 -- --------------------------------------------------------
 
@@ -65,44 +66,18 @@ CREATE TABLE IF NOT EXISTS `cierres_caja` (
   `estado` enum('abierta','cerrada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'abierta',
   PRIMARY KEY (`id_cierre`),
   KEY `fk_cierre_usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `cierres_caja`
 --
 
 INSERT INTO `cierres_caja` (`id_cierre`, `id_usuario`, `fecha_apertura`, `fecha_cierre`, `monto_inicial`, `monto_esperado`, `monto_declarado`, `diferencia`, `observaciones`, `estado`) VALUES
-(1, 2, '2026-10-26 14:18:35', '2026-10-26 14:29:31', 50.00, 58.45, 58.45, 0.00, '', 'cerrada'),
-(2, 2, '2026-10-26 15:47:39', '2026-10-26 15:47:49', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
-(3, 2, '2026-10-26 15:48:07', '2026-10-26 15:48:39', 50.00, 55.00, 55.00, 0.00, '', 'cerrada'),
-(4, 2, '2026-10-26 15:50:27', '2026-10-26 15:50:36', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
-(5, 2, '2026-10-27 23:50:06', '2026-10-27 23:50:40', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
-(6, 2, '2026-10-28 01:42:55', NULL, 50.00, 0.00, 0.00, 0.00, NULL, 'abierta');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `clientes`
---
-
-DROP TABLE IF EXISTS `clientes`;
-CREATE TABLE IF NOT EXISTS `clientes` (
-  `id_cliente` int UNSIGNED NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `apellido` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `telefono` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `creado_en` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_cliente`),
-  KEY `idx_cliente_telefono` (`telefono`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `clientes`
---
-
-INSERT INTO `clientes` (`id_cliente`, `nombre`, `apellido`, `telefono`, `email`, `creado_en`) VALUES
-(1, 'María', NULL, '7777-1234', NULL, '2026-10-21 17:47:26');
+(1, 2, '2026-10-30 01:21:03', '2026-11-03 23:15:14', 50.00, 201.05, 201.05, 0.00, '', 'cerrada'),
+(2, 1, '2026-10-30 09:54:46', NULL, 50.00, 0.00, 0.00, 0.00, NULL, 'abierta'),
+(3, 2, '2026-11-03 23:15:32', '2026-11-04 01:23:22', 50.00, 50.00, 50.00, 0.00, '', 'cerrada'),
+(4, 2, '2026-11-04 01:24:14', '2026-11-04 01:43:26', 50.00, 80.49, 80.00, -0.49, 'los .49 son los que no le cobro al cliente que le ajustaba', 'cerrada'),
+(5, 2, '2026-11-04 07:44:54', '2026-11-04 19:30:18', 50.00, 90.23, 90.23, 0.00, '', 'cerrada');
 
 -- --------------------------------------------------------
 
@@ -129,51 +104,33 @@ CREATE TABLE IF NOT EXISTS `detalle_orden` (
 --
 
 INSERT INTO `detalle_orden` (`id_detalle`, `id_orden`, `id_producto`, `cantidad`, `precio_unitario`, `subtotal`, `notas`) VALUES
-(1, 1, 1, 1, 8.50, 8.50, NULL),
-(2, 2, 1, 1, 8.75, 8.75, NULL),
-(3, 2, 2, 1, 13.74, 13.74, NULL),
+(1, 1, 4, 1, 8.95, 8.95, NULL),
+(2, 2, 5, 1, 5.00, 5.00, NULL),
+(3, 2, 1, 1, 7.50, 7.50, NULL),
 (4, 2, 3, 1, 2.00, 2.00, NULL),
-(5, 3, 1, 1, 8.75, 8.75, NULL),
-(6, 3, 1, 1, 9.25, 9.25, NULL),
-(7, 3, 1, 1, 7.50, 7.50, NULL),
-(8, 3, 3, 1, 2.00, 2.00, NULL),
-(9, 4, 2, 1, 12.99, 12.99, NULL),
-(10, 4, 2, 1, 13.99, 13.99, NULL),
-(11, 4, 1, 1, 8.75, 8.75, NULL),
-(12, 4, 3, 1, 2.00, 2.00, NULL),
-(13, 5, 2, 1, 13.99, 13.99, NULL),
-(14, 5, 1, 1, 7.50, 7.50, NULL),
-(15, 6, 5, 1, 5.00, 5.00, NULL),
-(16, 6, 4, 1, 8.45, 8.45, NULL),
-(17, 6, 2, 1, 12.99, 12.99, NULL),
-(18, 6, 2, 1, 13.74, 13.74, NULL),
-(19, 7, 2, 1, 12.99, 12.99, NULL),
-(20, 8, 4, 1, 8.45, 8.45, NULL),
-(21, 9, 5, 1, 5.00, 5.00, NULL),
-(22, 9, 3, 1, 2.00, 2.00, NULL),
-(23, 9, 2, 1, 13.99, 13.99, NULL),
-(24, 10, 4, 1, 8.45, 8.45, NULL),
-(25, 10, 1, 1, 7.50, 7.50, NULL),
-(26, 10, 1, 1, 9.00, 9.00, NULL),
-(27, 11, 2, 1, 12.99, 12.99, NULL),
-(28, 11, 3, 1, 2.00, 2.00, NULL),
-(29, 11, 5, 1, 5.00, 5.00, NULL),
-(30, 11, 5, 1, 5.00, 5.00, NULL),
-(31, 12, 4, 1, 8.45, 8.45, NULL),
-(32, 12, 2, 1, 12.99, 12.99, NULL),
-(33, 12, 2, 1, 13.99, 13.99, NULL),
-(34, 13, 5, 1, 5.00, 5.00, NULL),
-(35, 13, 3, 1, 2.00, 2.00, NULL),
-(36, 13, 1, 1, 9.00, 9.00, NULL),
-(37, 14, 4, 1, 8.45, 8.45, NULL),
-(38, 15, 1, 1, 9.25, 9.25, NULL),
-(39, 16, 2, 1, 12.99, 12.99, NULL),
-(40, 16, 2, 1, 13.99, 13.99, NULL),
-(41, 17, 5, 1, 5.00, 5.00, NULL),
-(42, 18, 4, 1, 8.45, 8.45, NULL),
-(43, 18, 2, 1, 12.99, 12.99, NULL),
-(44, 18, 3, 1, 2.00, 2.00, NULL),
-(45, 18, 5, 1, 5.00, 5.00, NULL);
+(5, 3, 2, 1, 15.99, 15.99, NULL),
+(6, 4, 2, 1, 12.99, 12.99, NULL),
+(7, 4, 2, 1, 13.49, 13.49, NULL),
+(8, 5, 2, 1, 13.74, 13.74, NULL),
+(9, 5, 1, 1, 9.00, 9.00, NULL),
+(10, 6, 4, 1, 10.45, 10.45, NULL),
+(11, 6, 5, 1, 5.00, 5.00, NULL),
+(12, 7, 3, 1, 2.00, 2.00, NULL),
+(13, 8, 1, 1, 7.50, 7.50, NULL),
+(14, 9, 2, 1, 14.99, 14.99, NULL),
+(15, 9, 3, 1, 2.00, 2.00, NULL),
+(16, 9, 3, 1, 2.00, 2.00, NULL),
+(17, 10, 5, 1, 5.00, 5.00, NULL),
+(18, 10, 5, 1, 5.00, 5.00, NULL),
+(19, 10, 4, 1, 8.45, 8.45, NULL),
+(20, 11, 2, 1, 14.24, 14.24, NULL),
+(21, 11, 1, 1, 7.50, 7.50, NULL),
+(22, 12, 1, 1, 8.75, 8.75, NULL),
+(23, 13, 2, 1, 12.99, 12.99, NULL),
+(24, 13, 2, 1, 14.24, 14.24, NULL),
+(25, 13, 6, 1, 2.50, 2.50, NULL),
+(26, 13, 7, 1, 3.00, 3.00, NULL),
+(27, 13, 1, 1, 7.50, 7.50, NULL);
 
 --
 -- Disparadores `detalle_orden`
@@ -240,28 +197,27 @@ CREATE TABLE IF NOT EXISTS `detalle_orden_extra` (
 --
 
 INSERT INTO `detalle_orden_extra` (`id_detalle`, `id_extra`, `precio`) VALUES
-(1, 1, 1.00),
-(2, 2, 0.75),
-(2, 3, 0.50),
-(3, 2, 0.75),
+(1, 3, 0.50),
+(5, 1, 1.00),
+(5, 2, 0.75),
 (5, 3, 0.50),
 (5, 4, 0.75),
-(6, 1, 1.00),
-(6, 4, 0.75),
-(10, 1, 1.00),
-(11, 2, 0.75),
-(11, 3, 0.50),
-(13, 1, 1.00),
-(18, 2, 0.75),
-(23, 1, 1.00),
-(26, 2, 0.75),
-(26, 4, 0.75),
-(33, 1, 1.00),
-(36, 2, 0.75),
-(36, 4, 0.75),
-(38, 1, 1.00),
-(38, 4, 0.75),
-(40, 1, 1.00);
+(7, 3, 0.50),
+(8, 2, 0.75),
+(9, 1, 1.00),
+(9, 3, 0.50),
+(10, 2, 0.75),
+(10, 3, 0.50),
+(10, 4, 0.75),
+(14, 2, 0.75),
+(14, 3, 0.50),
+(14, 4, 0.75),
+(20, 2, 0.75),
+(20, 3, 0.50),
+(22, 2, 0.75),
+(22, 3, 0.50),
+(24, 2, 0.75),
+(24, 3, 0.50);
 
 -- --------------------------------------------------------
 
@@ -349,11 +305,10 @@ DROP TABLE IF EXISTS `ordenes`;
 CREATE TABLE IF NOT EXISTS `ordenes` (
   `id_orden` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `codigo` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `id_cliente` int UNSIGNED DEFAULT NULL,
   `id_usuario` int UNSIGNED NOT NULL,
   `id_estado` tinyint UNSIGNED NOT NULL,
-  `origen` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Mostrador',
-  `codigo_externo` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cliente` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hora_entrega` time DEFAULT NULL,
   `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
   `descuento` decimal(10,2) NOT NULL DEFAULT '0.00',
   `total` decimal(10,2) NOT NULL DEFAULT '0.00',
@@ -362,38 +317,33 @@ CREATE TABLE IF NOT EXISTS `ordenes` (
   `motivo_anulacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `id_usuario_anula` int UNSIGNED DEFAULT NULL,
   `fecha_anulacion` datetime DEFAULT NULL,
+  `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_orden`),
   UNIQUE KEY `codigo` (`codigo`),
-  KEY `fk_ord_cliente` (`id_cliente`),
   KEY `fk_ord_usuario` (`id_usuario`),
   KEY `fk_ord_anula` (`id_usuario_anula`),
   KEY `idx_ord_fecha` (`fecha_creacion`),
   KEY `idx_ord_estado` (`id_estado`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `ordenes`
 --
 
-INSERT INTO `ordenes` (`id_orden`, `codigo`, `id_cliente`, `id_usuario`, `id_estado`, `origen`, `codigo_externo`, `subtotal`, `descuento`, `total`, `observaciones`, `fecha_creacion`, `motivo_anulacion`, `id_usuario_anula`, `fecha_anulacion`) VALUES
-(1, 'ORD-0001', 1, 2, 1, 'Uber Eats', 'UE-48213', 8.50, 0.00, 8.50, NULL, '2026-10-21 17:47:26', NULL, NULL, NULL),
-(2, 'ORD-0002', NULL, 2, 4, 'Mostrador', NULL, 24.49, 0.00, 24.49, NULL, '2026-10-22 07:13:19', NULL, NULL, NULL),
-(3, 'ORD-0003', NULL, 2, 5, 'Mostrador', NULL, 27.50, 0.00, 27.50, 'Anulada por Gerencia', '2026-10-22 07:19:25', NULL, NULL, NULL),
-(4, 'ORD-0004', NULL, 2, 1, 'Mostrador', NULL, 37.73, 0.00, 37.73, NULL, '2026-10-22 09:37:21', NULL, NULL, NULL),
-(5, 'ORD-0005', NULL, 1, 5, 'Mostrador', NULL, 21.49, 0.00, 21.49, 'Anulada por Gerencia', '2026-10-23 00:18:15', NULL, NULL, NULL),
-(6, 'ORD-0006', NULL, 2, 2, 'Mostrador', NULL, 40.18, 0.00, 40.18, NULL, '2026-10-23 10:10:40', NULL, NULL, NULL),
-(7, 'ORD-0007', NULL, 1, 1, 'Mostrador', NULL, 12.99, 0.00, 12.99, NULL, '2026-10-23 10:13:38', NULL, NULL, NULL),
-(8, 'ORD-0008', NULL, 2, 4, 'Mostrador', NULL, 8.45, 0.00, 8.45, NULL, '2026-10-24 13:45:38', NULL, NULL, NULL),
-(9, 'ORD-0009', NULL, 2, 4, 'Mostrador', NULL, 20.99, 0.00, 20.99, NULL, '2026-10-24 13:46:02', NULL, NULL, NULL),
-(10, 'ORD-0010', NULL, 2, 4, 'Mostrador', NULL, 24.95, 0.00, 24.95, NULL, '2026-10-24 13:46:12', NULL, NULL, NULL),
-(11, 'ORD-0011', NULL, 2, 4, 'Mostrador', NULL, 24.99, 0.00, 24.99, NULL, '2026-10-24 13:46:19', NULL, NULL, NULL),
-(12, 'ORD-0012', NULL, 2, 4, 'Mostrador', NULL, 35.43, 0.00, 35.43, NULL, '2026-10-26 13:43:36', NULL, NULL, NULL),
-(13, 'ORD-0013', NULL, 2, 4, 'Mostrador', NULL, 16.00, 0.00, 16.00, NULL, '2026-10-26 14:03:37', NULL, NULL, NULL),
-(14, 'ORD-0014', NULL, 2, 4, 'Mostrador', NULL, 8.45, 0.00, 8.45, NULL, '2026-10-26 14:18:41', NULL, NULL, NULL),
-(15, 'ORD-0015', NULL, 2, 4, 'Mostrador', NULL, 9.25, 0.00, 9.25, NULL, '2026-10-26 15:22:50', NULL, NULL, NULL),
-(16, 'ORD-0016', NULL, 2, 4, 'Mostrador', NULL, 26.98, 0.00, 26.98, NULL, '2026-10-26 15:31:05', NULL, NULL, NULL),
-(17, 'ORD-0017', NULL, 2, 4, 'Mostrador', NULL, 5.00, 0.00, 5.00, NULL, '2026-10-26 15:48:14', NULL, NULL, NULL),
-(18, 'ORD-0018', NULL, 1, 1, 'Mostrador', NULL, 28.44, 0.00, 28.44, NULL, '2026-10-26 16:48:50', NULL, NULL, NULL);
+INSERT INTO `ordenes` (`id_orden`, `codigo`, `id_usuario`, `id_estado`, `cliente`, `hora_entrega`, `subtotal`, `descuento`, `total`, `observaciones`, `fecha_creacion`, `motivo_anulacion`, `id_usuario_anula`, `fecha_anulacion`, `fecha_actualizacion`) VALUES
+(1, 'ORD-0001', 2, 4, 'Aldo Isai', '07:30:00', 8.95, 0.00, 8.95, '', '2026-10-30 01:21:36', NULL, NULL, NULL, '2026-10-30 07:42:58'),
+(2, 'ORD-0002', 2, 4, 'Samuel', '12:00:00', 14.50, 0.00, 14.50, '', '2026-10-30 01:22:06', NULL, NULL, NULL, '2026-10-30 07:43:07'),
+(3, 'ORD-0003', 2, 4, 'Marcos', NULL, 15.99, 0.00, 15.99, '', '2026-10-30 01:26:02', NULL, NULL, NULL, '2026-10-30 08:38:20'),
+(4, 'ORD-0004', 2, 4, 'Aldo Isai', '07:00:00', 26.48, 0.00, 26.48, '', '2026-10-30 09:31:21', NULL, NULL, NULL, '2026-10-30 16:25:52'),
+(5, 'ORD-0005', 2, 4, 'Diego', NULL, 22.74, 0.00, 22.74, '', '2026-10-30 10:05:23', NULL, NULL, NULL, '2026-10-30 16:27:06'),
+(6, 'ORD-0006', 2, 4, 'Aldo Isai', NULL, 15.45, 0.00, 15.45, '', '2026-10-30 10:27:37', NULL, NULL, NULL, '2026-11-04 05:15:00'),
+(7, 'ORD-0007', 2, 4, 'Eduardo', NULL, 2.00, 0.00, 2.00, '', '2026-10-30 10:29:20', NULL, NULL, NULL, '2026-11-04 05:14:58'),
+(8, 'ORD-0008', 2, 4, 'René', '08:30:00', 7.50, 0.00, 7.50, '', '2026-10-30 10:30:32', NULL, NULL, NULL, '2026-11-04 05:14:54'),
+(9, 'ORD-0009', 2, 4, 'Alejandro', NULL, 18.99, 0.00, 18.99, '', '2026-10-30 10:35:09', NULL, NULL, NULL, '2026-11-04 05:14:52'),
+(10, 'ORD-0010', 2, 4, 'kenia', NULL, 18.45, 0.00, 18.45, '', '2026-10-30 10:37:35', NULL, NULL, NULL, '2026-11-04 05:14:47'),
+(11, 'ORD-0011', 2, 4, 'Aldo Galindo', '20:00:00', 21.74, 0.00, 21.74, '', '2026-11-04 01:26:02', NULL, NULL, NULL, '2026-11-04 07:30:57'),
+(12, 'ORD-0012', 2, 4, 'Marcos Josue', '12:00:00', 8.75, 0.00, 8.75, 'quiere que este bien caliente cuando venga a traerla', '2026-11-04 01:28:12', NULL, NULL, NULL, '2026-11-04 07:31:11'),
+(13, 'ORD-0013', 2, 4, 'Aldo Isai', '09:00:00', 40.23, 0.00, 40.23, '', '2026-11-04 19:10:59', NULL, NULL, NULL, '2026-11-05 01:30:02');
 
 --
 -- Disparadores `ordenes`
@@ -438,18 +388,19 @@ CREATE TABLE IF NOT EXISTS `pagos` (
 --
 
 INSERT INTO `pagos` (`id_pago`, `id_orden`, `id_metodo_pago`, `id_usuario`, `monto`, `fecha_pago`) VALUES
-(1, 1, 1, 2, 8.50, '2026-10-21 17:47:26'),
-(2, 3, 1, 2, 27.50, '2026-10-22 07:19:25'),
-(3, 4, 1, 2, 37.73, '2026-10-22 09:37:21'),
-(4, 7, 1, 1, 12.99, '2026-10-23 10:13:38'),
-(5, 8, 1, 2, 8.45, '2026-10-24 13:45:38'),
-(6, 9, 1, 2, 20.99, '2026-10-24 13:46:02'),
-(7, 10, 1, 2, 24.95, '2026-10-24 13:46:12'),
-(8, 12, 1, 2, 35.43, '2026-10-26 13:43:36'),
-(9, 13, 1, 2, 16.00, '2026-10-26 14:03:37'),
-(10, 14, 1, 2, 8.45, '2026-10-26 14:18:41'),
-(11, 17, 1, 2, 5.00, '2026-10-26 15:48:14'),
-(12, 18, 1, 1, 28.44, '2026-10-26 16:48:51');
+(1, 1, 2, 2, 8.95, '2026-10-30 01:21:36'),
+(2, 3, 1, 2, 15.99, '2026-10-30 01:26:02'),
+(3, 2, 3, 2, 14.50, '2026-10-30 01:43:07'),
+(4, 5, 1, 2, 22.74, '2026-10-30 10:05:23'),
+(5, 4, 1, 2, 26.48, '2026-10-30 10:25:52'),
+(6, 6, 3, 2, 15.45, '2026-10-30 10:27:37'),
+(7, 7, 1, 2, 2.00, '2026-10-30 10:29:20'),
+(8, 10, 2, 2, 18.45, '2026-11-03 23:14:47'),
+(9, 9, 1, 2, 18.99, '2026-11-03 23:14:52'),
+(10, 8, 1, 2, 7.50, '2026-11-03 23:14:54'),
+(11, 12, 2, 2, 8.75, '2026-11-04 01:28:12'),
+(12, 11, 3, 2, 21.74, '2026-11-04 01:30:57'),
+(13, 13, 2, 2, 40.23, '2026-11-04 19:11:00');
 
 -- --------------------------------------------------------
 
@@ -478,33 +429,9 @@ INSERT INTO `productos` (`id_producto`, `id_categoria`, `nombre`, `descripcion`,
 (2, 1, 'Pizza Carnívora', 'Pepperoni, jamón, salchicha italiana y tocino crujiente.', 12.99, 1),
 (3, 2, 'Soda Coca-Cola 1.25L', 'Gaseosa Coca-Cola de 1.25 litros.', 2.00, 1),
 (4, 1, 'pizza de segunda', 'pizza normal pero con algun problema en el proceso de preparacion', 8.45, 0),
-(5, 3, 'Tres Leches', 'una porcion del postre 3 leches listo para comer', 5.00, 0);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `producto_extra`
---
-
-DROP TABLE IF EXISTS `producto_extra`;
-CREATE TABLE IF NOT EXISTS `producto_extra` (
-  `id_producto` int UNSIGNED NOT NULL,
-  `id_extra` smallint UNSIGNED NOT NULL,
-  PRIMARY KEY (`id_producto`,`id_extra`),
-  KEY `fk_pe_extra` (`id_extra`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `producto_extra`
---
-
-INSERT INTO `producto_extra` (`id_producto`, `id_extra`) VALUES
-(1, 1),
-(2, 1),
-(1, 2),
-(2, 2),
-(1, 3),
-(1, 4);
+(5, 3, 'Tres Leches', 'una porcion del postre 3 leches listo para comer', 5.00, 0),
+(6, 4, 'Pan con ajo', 'Pan horneado con mantequilla y ajo.', 2.50, 1),
+(7, 4, 'Palitroques', 'Palitos de pan horneados, dorados y crujientes.', 3.00, 1);
 
 -- --------------------------------------------------------
 
@@ -585,7 +512,6 @@ DROP VIEW IF EXISTS `v_ordenes_cocina`;
 CREATE TABLE IF NOT EXISTS `v_ordenes_cocina` (
 `id_orden` int unsigned
 ,`codigo` varchar(20)
-,`origen` varchar(40)
 ,`estado` varchar(30)
 ,`orden_flujo` tinyint unsigned
 ,`fecha_creacion` datetime
@@ -637,7 +563,6 @@ CREATE TABLE IF NOT EXISTS `v_productos_mas_vendidos` (
 DROP VIEW IF EXISTS `v_ventas_diarias`;
 CREATE TABLE IF NOT EXISTS `v_ventas_diarias` (
 `fecha` date
-,`origen` varchar(40)
 ,`num_ordenes` bigint
 ,`total_vendido` decimal(32,2)
 );
@@ -675,7 +600,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `v_ordenes_cocina`;
 
 DROP VIEW IF EXISTS `v_ordenes_cocina`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ordenes_cocina`  AS SELECT `o`.`id_orden` AS `id_orden`, `o`.`codigo` AS `codigo`, `o`.`origen` AS `origen`, `e`.`nombre` AS `estado`, `e`.`orden_flujo` AS `orden_flujo`, `o`.`fecha_creacion` AS `fecha_creacion`, timestampdiff(MINUTE,`o`.`fecha_creacion`,now()) AS `minutos_transcurridos`, `d`.`id_detalle` AS `id_detalle`, `p`.`nombre` AS `producto`, `d`.`cantidad` AS `cantidad`, `d`.`notas` AS `notas`, (select group_concat(`x`.`nombre` order by `x`.`nombre` ASC separator ', ') from (`detalle_orden_extra` `dx` join `extras` `x` on((`x`.`id_extra` = `dx`.`id_extra`))) where (`dx`.`id_detalle` = `d`.`id_detalle`)) AS `extras` FROM (((`ordenes` `o` join `estados_orden` `e` on((`e`.`id_estado` = `o`.`id_estado`))) join `detalle_orden` `d` on((`d`.`id_orden` = `o`.`id_orden`))) join `productos` `p` on((`p`.`id_producto` = `d`.`id_producto`))) WHERE (`e`.`nombre` in ('Pendiente','En preparación','Lista')) ORDER BY `o`.`fecha_creacion` ASC, `d`.`id_detalle` ASC ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ordenes_cocina`  AS SELECT `o`.`id_orden` AS `id_orden`, `o`.`codigo` AS `codigo`, `e`.`nombre` AS `estado`, `e`.`orden_flujo` AS `orden_flujo`, `o`.`fecha_creacion` AS `fecha_creacion`, timestampdiff(MINUTE,`o`.`fecha_creacion`,now()) AS `minutos_transcurridos`, `d`.`id_detalle` AS `id_detalle`, `p`.`nombre` AS `producto`, `d`.`cantidad` AS `cantidad`, `d`.`notas` AS `notas`, (select group_concat(`x`.`nombre` order by `x`.`nombre` ASC separator ', ') from (`detalle_orden_extra` `dx` join `extras` `x` on((`x`.`id_extra` = `dx`.`id_extra`))) where (`dx`.`id_detalle` = `d`.`id_detalle`)) AS `extras` FROM (((`ordenes` `o` join `estados_orden` `e` on((`e`.`id_estado` = `o`.`id_estado`))) join `detalle_orden` `d` on((`d`.`id_orden` = `o`.`id_orden`))) join `productos` `p` on((`p`.`id_producto` = `d`.`id_producto`))) WHERE (`e`.`nombre` in ('Pendiente','En preparación','Lista')) ORDER BY `o`.`fecha_creacion` ASC, `d`.`id_detalle` ASC ;
 
 -- --------------------------------------------------------
 
@@ -705,7 +630,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `v_ventas_diarias`;
 
 DROP VIEW IF EXISTS `v_ventas_diarias`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas_diarias`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, `o`.`origen` AS `origen`, count(0) AS `num_ordenes`, sum(`o`.`total`) AS `total_vendido` FROM (`ordenes` `o` join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` <> 'Cancelada')))) GROUP BY cast(`o`.`fecha_creacion` as date), `o`.`origen` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas_diarias`  AS SELECT cast(`o`.`fecha_creacion` as date) AS `fecha`, count(0) AS `num_ordenes`, sum(`o`.`total`) AS `total_vendido` FROM (`ordenes` `o` join `estados_orden` `e` on(((`e`.`id_estado` = `o`.`id_estado`) and (`e`.`nombre` <> 'Cancelada')))) GROUP BY cast(`o`.`fecha_creacion` as date) ;
 
 -- --------------------------------------------------------
 
@@ -746,7 +671,6 @@ ALTER TABLE `detalle_orden_extra`
 --
 ALTER TABLE `ordenes`
   ADD CONSTRAINT `fk_ord_anula` FOREIGN KEY (`id_usuario_anula`) REFERENCES `usuarios` (`id_usuario`),
-  ADD CONSTRAINT `fk_ord_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`),
   ADD CONSTRAINT `fk_ord_estado` FOREIGN KEY (`id_estado`) REFERENCES `estados_orden` (`id_estado`),
   ADD CONSTRAINT `fk_ord_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
 
@@ -763,13 +687,6 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `productos`
   ADD CONSTRAINT `fk_prod_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`);
-
---
--- Filtros para la tabla `producto_extra`
---
-ALTER TABLE `producto_extra`
-  ADD CONSTRAINT `fk_pe_extra` FOREIGN KEY (`id_extra`) REFERENCES `extras` (`id_extra`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_pe_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `usuarios`

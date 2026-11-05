@@ -2,6 +2,7 @@
 // Configurar clases dinámicas para que el layout ocupe toda la pantalla
 $bodyClasses = 'bg-gray-100 font-sans h-screen flex flex-col';
 $extraCss = '/Padrino\'s_Pizza/assets/css/Pos.css';
+$vistaActual = 'pos';
 require_once __DIR__ . '/../../includes/header.php';
 
 /**
@@ -38,7 +39,8 @@ require_once __DIR__ . '/../../includes/header.php';
                     $borderBgClass = match($idCat) {
                         1 => 'border-t-4 border-t-red-600',          // Pizzas (Rojo)
                         2 => 'border-t-4 border-t-blue-500',         // Bebidas (Azul)
-                        3 => 'border-t-4 border-t-amber-500',        // Entradas (Dorado)
+                        3 => 'border-t-4 border-t-amber-500',        // Postres (Dorado)
+                        4 => 'border-t-4 border-t-orange-500',       // Complementos (Naranja)
                         default => 'border-t-4 border-t-emerald-700' // General
                     };
                     $tieneExtras = isset($extrasPorProducto[$prod['id_producto']]) && !empty($extrasPorProducto[$prod['id_producto']]);
@@ -102,34 +104,9 @@ require_once __DIR__ . '/../../includes/header.php';
                 </div>
             </div>
 
-            <!-- Sección Inferior: Nombre del Cliente, Hora, Observaciones y Pago -->
+            <!-- Sección Inferior: Totales, Pago y botón Siguiente -->
             <div class="pt-3 border-t border-gray-100 mt-2 space-y-3">
                 
-                <!-- Datos de la Entrega (Cliente + Hora + Notas) -->
-                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2.5 text-xs">
-                    
-                    <!-- Campo Nombre del Cliente -->
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-700 mb-1">👤 Nombre del Cliente *:</label>
-                        <input type="text" id="nombre_cliente" required placeholder="Ej. Juan Pérez" 
-                               class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]">
-                    </div>
-
-                    <!-- Campo Hora Solicitada -->
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-700 mb-1">⏰ Hora Solicitada (07:00 AM - 08:30 PM):</label>
-                        <input type="time" id="hora_entrega" min="07:00" max="20:30" 
-                               class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]">
-                    </div>
-
-                    <!-- Observaciones para Cocina -->
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-700 mb-1">📝 Observaciones para Cocina:</label>
-                        <textarea id="observaciones_orden" rows="1" placeholder="Ej. Bien cocida, sin cebolla..." 
-                                  class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332]"></textarea>
-                    </div>
-                </div>
-
                 <!-- Totales -->
                 <div class="space-y-1">
                     <div class="flex justify-between text-xs text-gray-500">
@@ -143,20 +120,38 @@ require_once __DIR__ . '/../../includes/header.php';
                     </div>
                 </div>
 
-                <!-- Botones de Estado de Pago -->
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="btn-pago-realizado" class="estado-pago activo bg-emerald-100 border-2 border-emerald-600 py-2 rounded-xl text-xs font-bold text-emerald-900 text-center cursor-pointer" data-estado="pagado">
-                        Cancelada (Pagado)
-                    </button>
-                    <button type="button" id="btn-pago-pendiente" class="estado-pago border border-gray-300 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 text-center cursor-pointer" data-estado="pendiente">
-                        Por Cancelar
-                    </button>
-                    <input type="hidden" id="estado_pago_seleccionado" value="pagado">
+<!-- Estado de Pago y Selección de Método -->
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-gray-700 mb-1">Estado de Pago:</label>
+                    
+                    <!-- Botones de Tamaño Fijo (h-8) -->
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button type="button" id="btn-pago-realizado" 
+                                class="h-8 flex items-center justify-center bg-emerald-100 border-2 border-emerald-600 rounded-lg text-[12px] font-bold text-emerald-900 text-center cursor-pointer transition-colors">
+                            Pagado
+                        </button>
+                        <button type="button" id="btn-pago-pendiente" 
+                                class="h-8 flex items-center justify-center border border-gray-300 rounded-lg text-[12px] font-semibold text-gray-600 hover:bg-gray-50 text-center cursor-pointer transition-colors">
+                            Por Cancelar
+                        </button>
+                        <input type="hidden" id="estado_pago_seleccionado" value="pagado">
+                    </div>
+
+                    <!-- Desplegable de Métodos de Pago -->
+                    <div id="contenedor-metodo-pago">
+                        <label class="block text-[10px] font-bold text-gray-700 mb-1">Forma de Pago:</label>
+                        <select id="id_metodo_pago" 
+                                class="w-full bg-white border border-gray-300 rounded-lg p-1.5 text-[10px] font-semibold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1B4332] transition-opacity">
+                            <option value="1"> Efectivo</option>
+                            <option value="2"> Tarjeta de Crédito / Débito</option>
+                            <option value="3"> Transferencia / Chivo Wallet</option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Botón Principal -->
-                <button id="btn-procesar" disabled class="w-full bg-[#A61C1C] hover:bg-red-800 text-white font-bold py-3 rounded-xl shadow-md transition text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-                    Procesar e Imprimir Orden
+                <!-- Botón Principal: abre el modal con los datos del cliente -->
+                <button type="button" id="btn-siguiente" disabled class="w-full bg-[#A61C1C] hover:bg-red-800 text-white font-bold py-3 rounded-xl shadow-md transition text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    Siguiente →
                 </button>
             </div>
         </aside>
@@ -166,12 +161,20 @@ require_once __DIR__ . '/../../includes/header.php';
 <!-- Componentes Modales -->
 <?php require_once __DIR__ . '/../Components/Modal_Apertura.php'; ?>
 <?php require_once __DIR__ . '/../Components/Modal_Cierre.php'; ?>
+<?php require_once __DIR__ . '/../Components/Modal_DatosOrden.php'; ?>
+<?php require_once __DIR__ . '/../Components/Modal_Ticket.php'; ?>
+<!-- Estilos y Scripts de Flatpickr para la Hora -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<!-- Scripts de JavaScript -->
-<script src="/Padrino's_Pizza/assets/js/ValidarPos.js"></script>
-<script src="/Padrino's_Pizza/assets/js/Cierre_Caja.js"></script>
+<!-- Scripts de JavaScript (asset_v añade ?v=fecha para que el navegador nunca use una copia vieja) -->
+<script src="<?= asset_v('assets/JS/ValidarPos.js') ?>"></script>
+<script src="<?= asset_v('assets/JS/Cierre_Caja.js') ?>"></script>
+<script src="<?= asset_v('assets/JS/HoraPos.js') ?>"></script>
+<script src="<?= asset_v('assets/JS/Ticket.js') ?>"></script>
 
 <?php
-$extraJs = '/Padrino\'s_Pizza/assets/js/Pos.js';
+$extraJs = asset_v('assets/JS/Pos.js');
 require_once __DIR__ . '/../../includes/footer.php';
 ?>

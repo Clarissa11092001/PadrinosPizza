@@ -4,19 +4,21 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
             if (!data.activa) {
-                // Si la caja NO está abierta, mostramos el modal de apertura de inmediato
+                // Pos.js lee esta bandera para no habilitar "Siguiente" sin caja abierta
+                window.cajaAbierta = false;
+
                 const modalApertura = document.getElementById('modal-apertura');
                 if (modalApertura) {
                     modalApertura.classList.remove('hidden');
                     modalApertura.classList.add('flex');
                 }
-                
-                // Deshabilitar la interfaz de venta
-                const btnProcesar = document.getElementById('btn-procesar');
-                if (btnProcesar) {
-                    btnProcesar.disabled = true;
-                    btnProcesar.title = "Debes abrir caja antes de realizar una venta";
+
+                const btnSiguiente = document.getElementById('btn-siguiente');
+                if (btnSiguiente) {
+                    btnSiguiente.disabled = true;
+                    btnSiguiente.title = "Debes abrir caja antes de realizar una venta";
                 }
             }
-        });
+        })
+        .catch(err => console.error('No se pudo verificar el estado de la caja:', err));
 });
