@@ -1,0 +1,13 @@
+{
+    "name": "padrinos/pizza",
+    "description": "Sistema de gestión de órdenes de Padrino's Pizza",
+    "type": "project",
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

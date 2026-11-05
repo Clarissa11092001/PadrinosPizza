@@ -1,0 +1,11 @@
+body {
+font-family: 'Inter', sans-serif; /* Texto general y botones (legibilidad rápida) */
+}
+h1, h2, .font-padrino-title {
+font-family: 'Cinzel', serif; /* Titulares principales con estética vintage/tradicional */
+}
+/* Colores corporativos */
+.bg-padrino-green { background-color: #1B4332; }
+.text-padrino-gold { color: #D4AF37; }
+.border-padrino-gold { border-color: #D4AF37; }
+.bg-padrino-red { background-color: #A61C1C; }
